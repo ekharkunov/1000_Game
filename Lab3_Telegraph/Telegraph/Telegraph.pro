@@ -4,7 +4,8 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui\
+            network
 
 TARGET = Telegraph
 TEMPLATE = app

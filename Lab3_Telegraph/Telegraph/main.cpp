@@ -1,3 +1,7 @@
+/*
+This project was created by Sosnovitch Segei, Kharkunov Eugene
+*/
+
 #include <QtGui/QApplication>
 #include "mainwindow.h"
 
