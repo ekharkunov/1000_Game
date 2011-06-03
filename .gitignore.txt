@@ -1,0 +1,7 @@
+GameServer-build-desktop/
+GameServer-build-desktop/debug/
+GameServer-build-desktop/release/
+*.o
+Makefile
+object_script.GameServer
+*.user
