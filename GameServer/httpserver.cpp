@@ -6,12 +6,13 @@ HttpServer::HttpServer(int port, QObject *parent) :
         QTcpServer(parent),
         mPort(port)
 {
-    manager = ConnectionManager::getInstance();
+    manager = new ConnectionManager();
     connect(this, SIGNAL(connectionAborted(QTcpSocket*)), manager, SLOT(removeConnection(QTcpSocket*)));
 }
 
 HttpServer::~HttpServer() {
-    ConnectionManager::destroy();
+    delete manager;
+    manager = 0;
 }
 
 bool HttpServer::startServer() {

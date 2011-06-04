@@ -19,21 +19,15 @@ class ConnectionManager : public QObject
     Q_OBJECT
 public:
     /**
-    * @brief Функция получения существующего объекта данного класса
-    * @return Объект класса @class ConnectionManager
-    */
-    static ConnectionManager* getInstance();
-
-    /**
-    * @brief Уничтожение объекта
-    */
-    static void destroy();
-
-    /**
     * @brief Стандартный конструктор
     * @param parent Дочерний объект
     */
     ConnectionManager(QObject *parent = 0);
+
+    /**
+    * @brief Стандартный деструктор
+    */
+    ~ConnectionManager();
 public slots:
     /**
     * @brief Слот для добавления соединения в список существующих соединений
@@ -49,7 +43,7 @@ public slots:
     void removeConnection(QTcpSocket *socket);
 private:
     //! Уrазатель на объект класса @class ConnectionManager
-    static ConnectionManager* _mManager;
+//    static ConnectionManager* _mManager;
 
     //! Список сокетов для существующих соединений
     QVector<QTcpSocket*> socketsArray;

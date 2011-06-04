@@ -43,10 +43,18 @@ public:
     states serverState() const;
 
     /**
-    * @brief Функция, запускающая сервер
-    * @return
+    * @brief Функция, которая осуществляет запуск сервера. В случае возникновения ошибки,
+    * появится сообщение со всей необходимой информацией
+    * @return true  Если сервер запущен без ошибок
+    *         false Если сервер не удалось запустить
     */
     bool startServer();
+
+    /**
+    * @brief Остановка запущенного сервера
+    */
+    void stopServer();
+
 private:
     //! Состояние сервера
     states currentState;
@@ -54,7 +62,7 @@ private:
     //! Менеджер соединений
     ConnectionManager *manager;
 
-    //! Номер порта, котрый прослушивается сервером
+    //! Номер порта, который прослушивается сервером
     int mPort;
 signals:
     /**
@@ -65,7 +73,8 @@ signals:
     void connectionAborted(QTcpSocket*);
 private slots:
     /**
-    * @brief Слот, для
+    * @brief Слот, для разрыва установленного соединения
+    * @sa ConnectionManager::removeConnection()
     */
     void slotConnectionAborted();
 

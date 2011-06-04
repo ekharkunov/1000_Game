@@ -40,6 +40,11 @@ public:
     */
     virtual bool startServer() = 0;
 
+    /**
+    *
+    */
+    virtual void stopServer() =0;
+
     virtual states serverState() const = 0;
 
     /**
@@ -52,9 +57,13 @@ public:
     /**
     * @brief Инициализация баз данных сервера
     */
-    virtual void initDatabases() = 0;
+    virtual bool initDatabases() = 0;
+
+    virtual void disconnectDatabases() = 0;
 
 public slots:
+
+    virtual void addNewConnection() = 0;
     /**
     * Слот для чтения информации, переданной клиентом
     */

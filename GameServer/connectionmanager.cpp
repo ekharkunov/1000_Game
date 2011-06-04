@@ -1,22 +1,14 @@
 #include "connectionmanager.h"
 
-ConnectionManager* ConnectionManager::_mManager = 0;
-
-ConnectionManager* ConnectionManager::getInstance() {
-    if (!_mManager)
-        _mManager = new ConnectionManager();
-    return _mManager;
-}
-
-void ConnectionManager::destroy() {
-    if (_mManager) {
-        delete _mManager;
-        _mManager = 0;
-    }
-}
-
 ConnectionManager::ConnectionManager(QObject *parent) : QObject(parent)
 {
+}
+
+ConnectionManager::~ConnectionManager() {
+    QVector<QTcpSocket*>::iterator it = socketsArray.begin();
+    for (; it != socketsArray.end(); ++it)
+        delete it;
+    socketsArray.clear();
 }
 
 void ConnectionManager::addConnection(QTcpSocket *socket) {
