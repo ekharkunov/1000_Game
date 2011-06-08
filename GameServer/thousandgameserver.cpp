@@ -1,8 +1,12 @@
 #include "thousandgameserver.h"
 #include "config.h"
 #include "connectionmanager.h"
+#include "queryhandler.h"
 #include <QMessageBox>
 #include <QSqlError>
+#include <QSqlQuery>
+#include <QDataStream>
+#include <QFile>
 
 ThousandGameServer* ThousandGameServer::_mInstance = 0;
 
@@ -16,17 +20,19 @@ void ThousandGameServer::destroy() {
 }
 
 ThousandGameServer::ThousandGameServer(int port, QObject *parent) :
-        AbstractGameServer(port, parent),
-        _mPort(port),
-        state(AbstractGameServer::NotRunning)
+    AbstractGameServer(port, parent),
+    _mPort(port),
+    state(AbstractGameServer::NotRunning)
 {
     databaseNames << "1000_UserInformation.sqlite";
     _mManager = new ConnectionManager();
     connect(this, SIGNAL(connectionAborted(QTcpSocket*)), _mManager, SLOT(removeConnection(QTcpSocket*)));
+    requestHandler = new QueryHandler();
 }
 
 ThousandGameServer::~ThousandGameServer() {
     delete _mManager;
+    delete requestHandler;
 }
 
 AbstractGameServer::states ThousandGameServer::serverState() const {
@@ -46,8 +52,8 @@ bool ThousandGameServer::startServer() {
         connect(this, SIGNAL(newConnection()), this, SLOT(addNewConnection()));
         bool isDatabasesInit = initDatabases();
         if (!isDatabasesInit) {
-        close();
-        return false;
+            close();
+            return false;
         }
     }
     state = AbstractGameServer::Running;
@@ -63,17 +69,26 @@ bool ThousandGameServer::initDatabases() {
     tempDB = QSqlDatabase::addDatabase("QSQLITE");
     QList<QString>::iterator it = databaseNames.begin();
     for (; it != databaseNames.end(); ++it) {
-        tempDB.setDatabaseName(Config::pathDatabases.absolutePath() + "/" + *it);
-        bool isOpened = tempDB.open();
-        if (!isOpened) {
-            QMessageBox::critical(0,
-                                  "Database initialization error",
-                                  "Unable to initialization a "  + *it + "\n"
-                                  + tempDB.lastError().text());
+        bool fileExist = QFile::exists(Config::pathDatabases.absolutePath() + "/" + *it);
+        if (!fileExist) {
+            QMessageBox::warning(0,
+                                 "Warning",
+                                 "Database " + *it + " not found!");
             return false;
         }
         else {
-            mapName2Database[*it] = tempDB;
+            tempDB.setDatabaseName(Config::pathDatabases.absolutePath() + "/" + *it);
+            bool isOpened = tempDB.open();
+            if (!isOpened) {
+                QMessageBox::critical(0,
+                                      "Database initialization error",
+                                      "Unable to initialization a "  + *it + "\n"
+                                      + tempDB.lastError().text());
+                return false;
+            }
+            else {
+                mapName2Database[*it] = tempDB;
+            }
         }
     }
     qDebug()<<"database OK!";
@@ -89,8 +104,25 @@ void ThousandGameServer::disconnectDatabases() {
     databaseNames.clear();
 }
 
-void ThousandGameServer::readClientInformation() {
-
+void ThousandGameServer::addRequestQuery() {
+    QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
+    // проверяем состояние сокета
+    if (mManager->socketState(socket) != WaitForQueryTransmission) return;
+    quint16 blockSize = 0;//размер блока передаваемых данных
+    quint16 requestSize = sizeof(QueryStruct) - sizeof(quint16);//количество байт, которое нам надо считать
+    QueryStruct requestQuery;
+    QDataStream stream(socket, QIODevice::ReadOnly);
+    stream>>blockSize;
+    if (socket->bytesAvailable() == requestSize) stream>>requestQuery;
+    if (requestQuery.size > 0) {
+        requestQuery.socketDescriptor = socket->socketDescriptor();
+        Q_ASSERT(requestQuery.socketDescriptor != -1);
+        //ставим запрос в очередь обработки
+        locker.lockForWrite();
+        _mRequestQueries.append(requestQuery);
+        locker.unlock();
+        emit (queryListChanged());//высылаем сигнал об изменении в очереди запросов
+    }
 }
 
 void ThousandGameServer::sendToClient(QByteArray &array, QTcpSocket *socket) {
@@ -102,7 +134,7 @@ void ThousandGameServer::addNewConnection() {
     _mManager->addConnection(socket);
     connect(socket, SIGNAL(disconnected()), this, SLOT(slotConnectionAborted()));
     connect(socket, SIGNAL(disconnected()), this, SLOT(deleteLater()));
-    connect(socket, SIGNAL(readyRead()), this, SLOT(readClientInformation()));
+    connect(socket, SIGNAL(readyRead()), this, SLOT(addRequestQuery()));
 }
 
 void ThousandGameServer::slotConnectionAborted() {

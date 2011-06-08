@@ -2,6 +2,8 @@
 * @file connectionmanager.h
 * @author Kharkunov Eugene
 * @date 2.06.2011
+* @brief Файл содержит описание класса менеджера соединений, а также перечисления и структуры,
+* которые описывают сокет
 */
 
 #ifndef CONNECTIONMANAGER_H
@@ -11,12 +13,39 @@
 #include <QTcpSocket>
 
 /**
+* @enum SocketState
+* @brief Описывает состояние сокета.
+*
+* Сокет может находится в двух состояниях:
+* 1. По средством данного сокета был отправлен запрос на сервер. Сокет ждет передачи данных
+* 2. Запрос еще не отсылался
+*/
+enum SocketState{
+    Undefined,
+    WaitForQueryTransmission,
+    WaitForDataTransmission
+};
+
+/**
+* @struct SocketDesc
+* @brief Структура для описания конкретного сокета
+*
+* Содержит в себе указатель на сокет и его состояние
+* @sa SocketState
+*/
+struct SocketDescr{
+    QTcpSocket *socket;
+    SocketState _mState;
+};
+
+/**
 * @class ConnectionManager
 * @brief Класс для управления существующими подключениями
 */
 class ConnectionManager : public QObject
 {
     Q_OBJECT
+    friend class QueryHandler;
 public:
     /**
     * @brief Стандартный конструктор
@@ -28,25 +57,40 @@ public:
     * @brief Стандартный деструктор
     */
     ~ConnectionManager();
+
+    /**
+    * @brief Получает состояние указанного сокета
+    * @param socket Указатель на сокет, состояние которого необходимо узнать
+    * @return Состояние сокета
+    * @sa SocketState
+    */
+    SocketState socketState(QTcpSocket *socket) const;
+
+    /**
+    * @brief Устанавливает состояние @p state для сокета @p socket
+    * @param socket Указатель на сокет, состояние которого необходимо изменить
+    * @param state  Состояние сокета, которое необходимо установить
+    * @sa SocketState
+    */
+    void setSocketState(QTcpSocket *socket, SocketState state);
 public slots:
     /**
     * @brief Слот для добавления соединения в список существующих соединений
-    * @param socket Соке, посредством которого обеспечивается соединение
+    *
+    * Добавленный сокет будет находится в состоянии SocketState::WaitForQueryTransmission
+    * @param socket Сокет, посредством которого обеспечивается соединение
     */
     void addConnection(QTcpSocket *socket);
 
     /**
     * @brief Слот для удаления соединения из списка существующих соединений
     * @param socket Сокет, который необходимо удалить из списка
-    * @note Слот соединяется с сигналом @sa QAbstractSocket::disconnected()
+    * @note Слот соединяется с сигналом QAbstractSocket::disconnected()
     */
     void removeConnection(QTcpSocket *socket);
 private:
-    //! Уrазатель на объект класса @class ConnectionManager
-//    static ConnectionManager* _mManager;
-
-    //! Список сокетов для существующих соединений
-    QVector<QTcpSocket*> socketsArray;
+    //! Список сокетов и их состояний для существующих соединений
+    QVector<SocketDescr> socketsArray;
 };
 
 #endif // CONNECTIONMANAGER_H

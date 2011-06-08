@@ -22,7 +22,9 @@ SOURCES += main.cpp\
     thousandgameserverfactory.cpp \
     connectionmanager.cpp \
     thousandgameserver.cpp \
-    gamethousand.cpp
+    gamethousand.cpp \
+    dataparser.cpp \
+    queryhandler.cpp
 
 HEADERS  += mainwindow.h \
     mainserver.h \
@@ -34,4 +36,10 @@ HEADERS  += mainwindow.h \
     thousandgameserverfactory.h \
     connectionmanager.h \
     thousandgameserver.h \
-    gamethousand.h
+    gamethousand.h \
+    protocol.h \
+    dataparser.h \
+    queryhandler.h
+
+OTHER_FILES += \
+    ProtocolDescription.txt

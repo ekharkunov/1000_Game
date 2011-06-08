@@ -7,6 +7,7 @@
 #define ABSTRACTGAMESERVER_H
 
 #include <QTcpServer>
+#include "protocol.h"
 
 /**
 * @class AbstractGameServer
@@ -18,7 +19,7 @@ class AbstractGameServer : public QTcpServer
 protected:
     /**
     * @enum states
-    * @brief
+    * @brief Перечисление опысывает состояние игрового сервера
     */
     enum states {Running, NotRunning};
 public:
@@ -35,16 +36,20 @@ public:
     virtual ~AbstractGameServer();
 
     /**
-    * @brief
-    * @return
+    * @brief Запуск сервера. Должна содержать все необходимые для старта сервера настройки.
+    * @return Успешность запуска сервера
     */
     virtual bool startServer() = 0;
 
     /**
-    *
+    * @brief Останавливает работающий сервер
     */
     virtual void stopServer() =0;
 
+    /**
+    * @brief Определяет текущее состояние игрового сервера
+    * @return Текущее состояние сервера
+    */
     virtual states serverState() const = 0;
 
     /**
@@ -56,18 +61,24 @@ public:
 
     /**
     * @brief Инициализация баз данных сервера
+    * @return Успешность инициализации всех необходимых БД
     */
     virtual bool initDatabases() = 0;
 
+    /**
+    * @brief Закрывает все созданные подключения к БД
+    */
     virtual void disconnectDatabases() = 0;
 
 public slots:
-
+    /**
+    * @brief Слот для добавления нового соединения с клиентом
+    */
     virtual void addNewConnection() = 0;
     /**
-    * Слот для чтения информации, переданной клиентом
+    * @brief Слот для постановки запроса, который приходит от клиента, в очередь обработки
     */
-    virtual void readClientInformation() = 0;
+    virtual void addRequestQuery() = 0;
 };
 
 #endif // ABSTRACTGAMESERVER_H
