@@ -21,6 +21,7 @@ class GameServerFactory : public QObject
 public:
     /**
     * @brief Стандартный конструктор
+    * @param parent Указатель на родительский объект
     */
     explicit GameServerFactory(QObject *parent = 0);
 
@@ -56,7 +57,7 @@ public:
     static QList<QString> registeredServer();
 
     /**
-    * @brief Создает сущность игрового сервера
+    * @brief Создает объект класса игрового сервера
     */
     virtual void createServerInstance() = 0;
 private:

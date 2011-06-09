@@ -27,8 +27,8 @@ public:
     /**
     * @brief Конструктор по умолчанию
     * @param port Номер порта, на который будет прослушиваться сервером
-    * @param parent Указатель на дочерний объект
-    * @note После создания необходим вызов @sa HttpServer::startServer() для запуска сервера
+    * @param parent Указатель на родительский объект
+    * @note После создания необходим вызов HttpServer::startServer() для запуска сервера
     */
     explicit HttpServer(int port = 8080, QObject *parent = 0);
 

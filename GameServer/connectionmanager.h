@@ -21,8 +21,11 @@
 * 2. Запрос еще не отсылался
 */
 enum SocketState{
+    //! Состояние соединения не определено
     Undefined,
+    //! Ожидание передачи запроса
     WaitForQueryTransmission,
+    //! Ожидание передачи данных
     WaitForDataTransmission
 };
 
@@ -34,7 +37,9 @@ enum SocketState{
 * @sa SocketState
 */
 struct SocketDescr{
+    //! Уrазатель на сокет
     QTcpSocket *socket;
+    //! Состояние сокета
     SocketState _mState;
 };
 
@@ -49,7 +54,7 @@ class ConnectionManager : public QObject
 public:
     /**
     * @brief Стандартный конструктор
-    * @param parent Дочерний объект
+    * @param parent Указатель на родительский объект
     */
     ConnectionManager(QObject *parent = 0);
 

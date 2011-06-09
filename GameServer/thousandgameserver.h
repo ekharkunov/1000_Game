@@ -2,7 +2,7 @@
 * @file thousandgameserver.h
 * @author Kharkunov Eugene
 * @date 3.06.2011
-* @brief Файл содердит описание класса, реализующего работу сервера карточной игры "Тысяча"
+* @brief Файл содержит описание класса, реализующего работу сервера карточной игры "Тысяча"
 */
 #ifndef THOUSANDGAMESERVER_H
 #define THOUSANDGAMESERVER_H
@@ -12,8 +12,7 @@
 #include "abstractgameserver.h"
 
 class ConnectionManager;
-class QueryHandler;
-class QReadWriteLock;
+class ThousandGameQueryHandler;
 
 /**
 * @class ThousandGameServer
@@ -22,21 +21,23 @@ class QReadWriteLock;
 class ThousandGameServer : public AbstractGameServer
 {
     Q_OBJECT
+    friend class ThousandGameQueryHandler;
 public:
     /**
-    * @brief Получает объект класса @class ThousandGameServer
+    * @brief Получает объект класса
     * @return Объект класса
     */
     static ThousandGameServer* getInstance();
 
     /**
-    * @brief Уничтожает объект класса @class ThousandGameServer
+    * @brief Уничтожает объект класса
     */
     static void destroy();
 
     /**
     * @brief Стандартный конструктор
     * @param port Порт, который будет прослушивать сервер
+    * @param parent Указатель на родительский объект
     * @sa Config::portsForGameServers
     */
     explicit ThousandGameServer(int port, QObject *parent = 0);
@@ -81,7 +82,9 @@ public:
     void sendToClient(QByteArray &array, QTcpSocket *socket);
 
     /**
-    * @brief
+    * @brief Получение текущего состояния сервера
+    * @return состояние сервера
+    * @sa AbstractGameServer::states
     */
     AbstractGameServer::states serverState() const;
 private:
@@ -101,7 +104,7 @@ private:
     QList<QueryStruct> _mRequestQueries;
 
     //! Обработчик очереди запросов
-    QueryHandler *requestHandler;
+    ThousandGameQueryHandler *requestHandler;
 
     //! Список база данных данного сервера
     QList<QString> databaseNames;
@@ -115,8 +118,6 @@ signals:
     //! Сигнал высылается в случае разрыва соединения одним из клиентов
     void connectionAborted(QTcpSocket*);
 
-    //! Сигнал высылается, если в очередь запросов был добавлен новый запрос
-    void queryListChanged();
 private slots:
     //! Слот, определяющий соединение, которое будет разорвано
     void slotConnectionAborted();

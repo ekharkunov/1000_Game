@@ -2,6 +2,8 @@
 * @file abstractgameserver.h
 * @author Kharkunov Eugene
 * @date 3.06.2011
+* @brief Файл содержит описание абстрактного класса, предоставляющего интерфейс для последующей
+* реализации игрового сервера
 */
 #ifndef ABSTRACTGAMESERVER_H
 #define ABSTRACTGAMESERVER_H
@@ -21,17 +23,23 @@ protected:
     * @enum states
     * @brief Перечисление опысывает состояние игрового сервера
     */
-    enum states {Running, NotRunning};
+    enum states {
+        //! Сервер работает
+        Running,
+        //! Сервер остановлен либо не был запущен
+        NotRunning
+    };
+
 public:
     /**
     * @brief Стандартный конструктор
     * @param port Номер порта, который будет прослушивать игровой сервер
-    * @param parent Дочерний объект
+    * @param parent Указатель на родительский объект
     */
     explicit AbstractGameServer(int port, QObject *parent = 0);
 
     /**
-    * Стандартный деструктор
+    * @brief Стандартный деструктор
     */
     virtual ~AbstractGameServer();
 
@@ -44,7 +52,7 @@ public:
     /**
     * @brief Останавливает работающий сервер
     */
-    virtual void stopServer() =0;
+    virtual void stopServer() = 0;
 
     /**
     * @brief Определяет текущее состояние игрового сервера
@@ -69,6 +77,10 @@ public:
     * @brief Закрывает все созданные подключения к БД
     */
     virtual void disconnectDatabases() = 0;
+
+signals:
+    //! Сигнал высылается, если в очередь запросов был добавлен новый запрос
+    void queryListChanged();
 
 public slots:
     /**

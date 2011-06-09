@@ -30,7 +30,7 @@ public:
 
     /**
     * @brief Конструктор по умолчанию
-    * @param parent Дочерний виджет
+    * @param parent Указатель на родительский виджет
     */
     explicit MainServer(QWidget *parent = 0);
 

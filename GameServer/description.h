@@ -4,4 +4,11 @@
 * @author Sosnovith Sergei aka DeathWing
 * @author Kharkunov Eugene aka Filosov
 * @author Tsarick Dmitriy aka Pilipka
+*
+* Для того, чтобы подключить дополнительный игровой сервер, Вам необходимо создать соответствующие классы,
+которое будут наследниками следующих классов:
+<br>AbstractGameServer -
+<br>GameServerFactory -
+<br>AbstractQueryHandler -
+<br>AbstractDataParser -
 */

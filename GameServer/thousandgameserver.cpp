@@ -1,7 +1,7 @@
 #include "thousandgameserver.h"
 #include "config.h"
 #include "connectionmanager.h"
-#include "queryhandler.h"
+#include "thousandgamequeryhandler.h"
 #include <QMessageBox>
 #include <QSqlError>
 #include <QSqlQuery>
@@ -27,7 +27,8 @@ ThousandGameServer::ThousandGameServer(int port, QObject *parent) :
     databaseNames << "1000_UserInformation.sqlite";
     _mManager = new ConnectionManager();
     connect(this, SIGNAL(connectionAborted(QTcpSocket*)), _mManager, SLOT(removeConnection(QTcpSocket*)));
-    requestHandler = new QueryHandler();
+    requestHandler = new ThousandGameQueryHandler(this);
+    connect(this, SIGNAL(queryListChanged()), requestHandler, SLOT(start(QThread::LowPriority)));
 }
 
 ThousandGameServer::~ThousandGameServer() {
@@ -107,13 +108,26 @@ void ThousandGameServer::disconnectDatabases() {
 void ThousandGameServer::addRequestQuery() {
     QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
     // проверяем состояние сокета
-    if (mManager->socketState(socket) != WaitForQueryTransmission) return;
+    if (_mManager->socketState(socket) != WaitForQueryTransmission) return;
     quint16 blockSize = 0;//размер блока передаваемых данных
     quint16 requestSize = sizeof(QueryStruct) - sizeof(quint16);//количество байт, которое нам надо считать
-    QueryStruct requestQuery;
-    QDataStream stream(socket, QIODevice::ReadOnly);
-    stream>>blockSize;
-    if (socket->bytesAvailable() == requestSize) stream>>requestQuery;
+    QueryStruct requestQuery;// преобразованный запрос
+    QByteArray incomingRequest;//массив, куда считываются данные из потока
+    QDataStream stream(socket);//поток считывания данных
+    while (requestSize) {
+        blockSize = socket->bytesAvailable();
+        if (blockSize > requestSize) blockSize = requestSize;
+        if (!blockSize) {
+            qDebug()<<"Invalid size of query";
+            break;
+        }
+        char *buffer = new char[blockSize];
+        stream.readRawData(buffer, sizeof(buffer));
+        incomingRequest.append(buffer);
+        requestSize -= blockSize;
+    }
+    QDataStream byteHandler(&incomingRequest, QIODevice::ReadOnly);
+    byteHandler>>requestQuery;
     if (requestQuery.size > 0) {
         requestQuery.socketDescriptor = socket->socketDescriptor();
         Q_ASSERT(requestQuery.socketDescriptor != -1);
@@ -121,6 +135,7 @@ void ThousandGameServer::addRequestQuery() {
         locker.lockForWrite();
         _mRequestQueries.append(requestQuery);
         locker.unlock();
+        _mManager->setSocketState(socket, WaitForDataTransmission);
         emit (queryListChanged());//высылаем сигнал об изменении в очереди запросов
     }
 }

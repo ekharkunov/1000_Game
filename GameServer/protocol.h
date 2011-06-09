@@ -11,26 +11,39 @@
 
 #include <QDataStream>
 
-
 /**
 * @enum QueryType
 * @brief Перечисление описывает основные запросы, реализованные в пользовательском
 * протоколе
 */
 enum QueryType {
+    //!
     REGISTER,
+    //!
     AUTHORIZATION,
+    //!
     MESSANGE,
+    //!
     NEWGAME,
+    //!
     CONNECTGAME,
+    //!
     DISCONNECTGAME,
+    //!
     STARTGAME,
+    //!
     CANCELGAME,
+    //!
     FINISHGAME,
+    //!
     LISTALLGAME,
+    //!
     LISTALLNEWGAME,
-    TOTALSTATISTICA,
-    PLAYERSTATISTICA,
+    //!
+    TOTALSTATISTICS,
+    //!
+    PLAYERSTATISTICS,
+    //!
     MOVE
 };
 
@@ -39,15 +52,23 @@ enum QueryType {
 * @brief Описывает структуру запроса
 */
 struct QueryStruct {
+    //! Дескриптор сокета
     quint16 socketDescriptor;
+    //! Тип запроса
     QueryType type;
+    //! Размер передаваемых данных
     qulonglong size;
+    /**
+    *
+    */
     friend QDataStream& operator <<(QDataStream &stream, const QueryStruct &str) {
         stream<<str.type<<str.size;
         return stream;
     }
     friend QDataStream& operator >>(QDataStream &stream, QueryStruct &str) {
-        stream>>str.type>>str.size;
+        int type = 0;
+        stream>>type>>str.size;
+        str.type = static_cast<QueryType>(type);
         return stream;
     }
 };
