@@ -20,6 +20,7 @@ class ThousandGameDataParser : public AbstractDataParser
     Q_OBJECT
 public:
     explicit ThousandGameDataParser(QObject *parent = 0);
+    ~ThousandGameDataParser();
 
 signals:
 

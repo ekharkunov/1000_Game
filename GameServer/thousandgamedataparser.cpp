@@ -4,3 +4,7 @@ ThousandGameDataParser::ThousandGameDataParser(QObject *parent) :
     AbstractDataParser(parent)
 {
 }
+
+ThousandGameDataParser::~ThousandGameDataParser() {
+
+}

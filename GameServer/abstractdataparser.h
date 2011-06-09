@@ -9,6 +9,92 @@
 #define ABSTRACTDATAPARSER_H
 
 #include <QObject>
+#include <QString>
+#include <QDataStream>
+
+/**
+* @defgroup DataStructure Структуры данных для передачи
+* @brief Структуры, которые описывают данные, передаваемые по пользовательскому протоколу передачи
+* @{
+*/
+
+/**
+* @struct RegistrationData
+* @brief Структура описывает данные, которые передаются от клиента к серверу в случае регистрации нового
+* пользователя
+*/
+struct RegistrationData {
+    //! Ник пользователя(его использую как логин при авторизации)
+    QString nickName;
+    //! Пароль
+    QString password;
+    //! Настоящее имя
+    //! TODO: Обеспечить совместимость с русским языком
+    QString realName;
+
+    /**
+    * @brief Перегруженный оператор помещения данных о регистрации пользователя в поток
+    * @param stream Поток с данными
+    * @param data   Данные, которые необходимо поместить в поток
+    * @return Поток с данными
+    */
+    friend QDataStream& operator <<(QDataStream &stream, const RegistrationData &data) {
+        stream<<static_cast<quint32>(sizeof(data));
+        stream<<data.nickName<<data.password<<data.realName;
+        return stream;
+    }
+
+    /**
+    * @brief Перегруженный оператор извлечения данных  о регистрации пользователя из потока
+    * @param stream Поток с данными
+    * @param data   Извлеченные данные
+    * @return Поток с данными
+    */
+    friend QDataStream& operator >>(QDataStream &stream, RegistrationData &data) {
+        quint32 size;
+        stream>>size;
+        stream>>data.nickName>>data.password>>data.realName;
+        return stream;
+    }
+};
+
+/**
+* @struct AuthorizationData
+* @brief Структура, которая содержит данные, необходимые для авторизации пользователя на сервере
+*/
+struct AuthorizationData {
+    //! Логин пользователя(совпадает с ником)
+    QString login;
+    //! Пароль
+    QString password;
+
+    /**
+    * @brief Перегруженный оператор помещения авторизационных данных в поток
+    * @param stream Поток с данными
+    * @param data   Данные, которые необходимо поместить в поток
+    * @return Поток с данными
+    */
+    friend QDataStream& operator <<(QDataStream &stream, const AuthorizationData &data) {
+        stream<<static_cast<quint32>(sizeof(data));
+        stream<<data.login<<data.password;
+        return stream;
+    }
+
+    /**
+    * @brief Перегруженный оператор извлечения авторизационных данных из потока
+    * @param stream Поток с данными
+    * @param data   Извлеченные данные
+    * @return Поток с данными
+    */
+    friend QDataStream& operator >>(QDataStream &stream, AuthorizationData &data) {
+        quint32 size;
+        stream>>size;
+        stream>>data.login>>data.password;
+        return stream;
+    }
+};
+
+/** @}*/
 
 /**
 * @class AbstractDataParser

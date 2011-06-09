@@ -17,39 +17,39 @@
 * протоколе
 */
 enum QueryType {
-    //!
+    //! Запрос на регистрацию нового участника
     REGISTER,
-    //!
+    //! Запрос на авторизацию пользователя
     AUTHORIZATION,
-    //!
+    //! Запрос на отправку сообщения в чат
     MESSANGE,
-    //!
+    //! Запрос на создание новой игры
     NEWGAME,
-    //!
+    //! Запрос на подключение игрока к созданной игре
     CONNECTGAME,
-    //!
+    //! Запрос на отключение игрока от созданной игры
     DISCONNECTGAME,
-    //!
+    //! Запрос на начало созданной игры
     STARTGAME,
-    //!
+    //! Запрос на отмену созданной игры
     CANCELGAME,
-    //!
+    //! Запрос на отпраку уведомления об окончании игры
     FINISHGAME,
-    //!
+    //! Запрос на получение полного списка игр на сервере
     LISTALLGAME,
-    //!
+    //! Запрос на получение списка созданных игр, ожидающих запуска
     LISTALLNEWGAME,
-    //!
+    //! Запрос на получение статистики по серверу
     TOTALSTATISTICS,
-    //!
+    //! Запрос на получение статистики конкретного пользователя
     PLAYERSTATISTICS,
-    //!
+    //! Запрос на обработку выполненного хода
     MOVE
 };
 
 /**
 * @struct QueryStruct
-* @brief Описывает структуру запроса
+* @brief Описывает структуру запроса пользовательского протокола передачи данных
 */
 struct QueryStruct {
     //! Дескриптор сокета
@@ -59,14 +59,27 @@ struct QueryStruct {
     //! Размер передаваемых данных
     qulonglong size;
     /**
-    *
+    * @brief Перегруженный оператор помещения данных в поток
+    * @param stream Поток с данными
+    * @param str    Запрос, который необходимо поместить в поток
+    * @return Поток с данными
     */
     friend QDataStream& operator <<(QDataStream &stream, const QueryStruct &str) {
+        stream<<static_cast<quint32>(sizeof(str));
         stream<<str.type<<str.size;
         return stream;
     }
+
+    /**
+    * @brief Перегруженный оператор извлечения данных из потока
+    * @param stream Поток с данными
+    * @param str    Извлеченный запрос
+    * @return Поток с данными
+    */
     friend QDataStream& operator >>(QDataStream &stream, QueryStruct &str) {
         int type = 0;
+        quint32 size;
+        stream>>size;
         stream>>type>>str.size;
         str.type = static_cast<QueryType>(type);
         return stream;

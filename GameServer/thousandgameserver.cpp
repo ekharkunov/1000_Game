@@ -1,3 +1,10 @@
+/**
+* @file thousandgameserver.cpp
+* @author Kharkunov Eugene
+* @date 4.06.2011
+* @brief Файл содержит реализацию методов класса ThousandGameServer
+*/
+
 #include "thousandgameserver.h"
 #include "config.h"
 #include "connectionmanager.h"
@@ -28,7 +35,7 @@ ThousandGameServer::ThousandGameServer(int port, QObject *parent) :
     _mManager = new ConnectionManager();
     connect(this, SIGNAL(connectionAborted(QTcpSocket*)), _mManager, SLOT(removeConnection(QTcpSocket*)));
     requestHandler = new ThousandGameQueryHandler(this);
-    connect(this, SIGNAL(queryListChanged()), requestHandler, SLOT(start(QThread::LowPriority)));
+    connect(this, SIGNAL(queryListChanged()), requestHandler, SLOT(start(QThread::LowPriority)), Qt::DirectConnection);
 }
 
 ThousandGameServer::~ThousandGameServer() {
@@ -42,7 +49,7 @@ AbstractGameServer::states ThousandGameServer::serverState() const {
 
 bool ThousandGameServer::startServer() {
     bool isStarted = listen(QHostAddress::Any, _mPort);
-    if (!isStarted) {
+    if (!isStarted) {//проверяем, удался ли захват порта
         QMessageBox::critical(0,
                               "Game server error",
                               "Unable to start the server:" + errorString());
@@ -50,13 +57,14 @@ bool ThousandGameServer::startServer() {
         return false;
     }
     else {
-        connect(this, SIGNAL(newConnection()), this, SLOT(addNewConnection()));
+
         bool isDatabasesInit = initDatabases();
-        if (!isDatabasesInit) {
+        if (!isDatabasesInit) {//проверяем, прошла ли инициализация всех БД сервера
             close();
             return false;
         }
     }
+    connect(this, SIGNAL(newConnection()), this, SLOT(addNewConnection()));
     state = AbstractGameServer::Running;
     return true;
 }
@@ -71,7 +79,7 @@ bool ThousandGameServer::initDatabases() {
     QList<QString>::iterator it = databaseNames.begin();
     for (; it != databaseNames.end(); ++it) {
         bool fileExist = QFile::exists(Config::pathDatabases.absolutePath() + "/" + *it);
-        if (!fileExist) {
+        if (!fileExist) {//проверяем на предмет существования файла БД
             QMessageBox::warning(0,
                                  "Warning",
                                  "Database " + *it + " not found!");
@@ -80,7 +88,7 @@ bool ThousandGameServer::initDatabases() {
         else {
             tempDB.setDatabaseName(Config::pathDatabases.absolutePath() + "/" + *it);
             bool isOpened = tempDB.open();
-            if (!isOpened) {
+            if (!isOpened) {//удалось ли открыть БД для работы
                 QMessageBox::critical(0,
                                       "Database initialization error",
                                       "Unable to initialization a "  + *it + "\n"
@@ -128,7 +136,7 @@ void ThousandGameServer::addRequestQuery() {
     }
     QDataStream byteHandler(&incomingRequest, QIODevice::ReadOnly);
     byteHandler>>requestQuery;
-    if (requestQuery.size > 0) {
+    if (requestQuery.size != 0) {//в случае запроса, после которого не последует передача данных size == -1
         requestQuery.socketDescriptor = socket->socketDescriptor();
         Q_ASSERT(requestQuery.socketDescriptor != -1);
         //ставим запрос в очередь обработки

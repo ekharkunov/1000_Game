@@ -37,7 +37,7 @@ enum SocketState{
 * @sa SocketState
 */
 struct SocketDescr{
-    //! Уrазатель на сокет
+    //! Указатель на сокет
     QTcpSocket *socket;
     //! Состояние сокета
     SocketState _mState;

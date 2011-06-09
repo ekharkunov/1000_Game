@@ -11,6 +11,7 @@
 #include "abstractqueryhandler.h"
 
 class ThousandGameServer;
+class ThousandGameDataParser;
 
 /**
 * @class ThousandGameQueryHandler
@@ -21,10 +22,28 @@ class ThousandGameQueryHandler : public AbstractQueryHandler
 {
     Q_OBJECT
 public:
+    /**
+    * @brief Стандартный конструктор
+    * @param parentServer   Указатель на объект игрового сервера "Тысяча"
+    * @param parent         Уrазатель на родительский объект
+    */
     explicit ThousandGameQueryHandler(ThousandGameServer *parentServer, QObject *parent = 0);
+
+    /**
+    * @brief Стандартный деструктор
+    */
+    ~ThousandGameQueryHandler();
+
+    /**
+    * @brief Обрабатывает очередь запросов до тех пор, пока она не станет пустой
+    * @sa ThousandGameServer::_mRequestQueries
+    */
     void run();
 private:
+    //! Указатель на объект игрового сервера, очередь запросов которого необходимо обработать
     ThousandGameServer *server;
+    //! Уrазатель на обработчик данных
+    ThousandGameDataParser *parser;
 };
 
 #endif // THOUSANDGAMEQUERYHANDLER_H

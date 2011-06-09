@@ -20,6 +20,10 @@ class AbstractQueryHandler : public QThread
 public:
     explicit AbstractQueryHandler(QObject *parent = 0);
     virtual ~AbstractQueryHandler();
+
+    /**
+    * @brief Содержит код, который необходимо выполнить при запуске потока
+    */
     virtual void run() = 0;
 signals:
 
