@@ -125,44 +125,45 @@ public:
     /**
     * @brief Обработка данных о регистрации нового пользователя
     * @param data Данные о пользователе
+    * @return Данные, преобразованные в структуру
     */
-    virtual void inRegistration(const QByteArray &data) = 0;
+    virtual RegistrationData inRegistration(const QByteArray &data) = 0;
 
     /**
     * @brief Обработка данных для авторизации пользователя
     * @param data Данные для авторизации
     */
-    virtual void inAuthorization(const QByteArray &data) = 0;
+//    virtual void inAuthorization(const QByteArray &data) = 0;
 
     /**
     * @brief Обработка данных, необходимых для создания новой игры на сервере
     * @param data Данные для создания игры
     */
-    virtual void inNewGame(const QByteArray &data) = 0;
+//    virtual void inNewGame(const QByteArray &data) = 0;
 
     /**
     * @brief Обработка данных о подключении игрока к игре
     * @param data Данные о подключении к созданной игре
     */
-    virtual void inConnectToGame(const QByteArray &data) = 0;
+//    virtual void inConnectToGame(const QByteArray &data) = 0;
 
     /**
     * @brief Обработка данных об отключении от игры
     * @param data Данные об отключении игрока от созданной игры(до момента запуска)
     */
-    virtual void inDisconnectGame(const QByteArray &data) = 0;
+//    virtual void inDisconnectGame(const QByteArray &data) = 0;
 
     /**
     * @brief Обработка данных об отмене созданной игры
     * @param data Данные, содержащие информацию об отмене созданной игры
     */
-    virtual void inCancelGame(const QByteArray &data) = 0;
+//    virtual void inCancelGame(const QByteArray &data) = 0;
 
     /**
     * @brief Обработка данных, необходимых для получения сведений об игроке
     * @param data Данные, содержащие информацию, необходимую для получения сведений об игроке
     */
-    virtual void inPlayerStatistics(const QByteArray &data) = 0;
+//    virtual void inPlayerStatistics(const QByteArray &data) = 0;
 
     /** @}*/
 
@@ -176,91 +177,92 @@ public:
     * @brief Подготавливает набор данных для отправки клиенту, который только что подключился к серверу
     * @return Набор данных, высылаемых при подключении нового клиента
     */
-    virtual QByteArray outInfoForNewConnection() = 0;
+//    virtual QByteArray outInfoForNewConnection() = 0;
 
     /**
     * @brief Подготавливает данные о пользователе после регистрации
-    * @return Данные о зарегистрированном пользователе
+    * @param information Информация о результате регистрации
+    * @return Успешность выполнения операции регистрации и сообщения и возникших в ходе выполнения ошибках
     */
-    virtual QByteArray outRegistration() = 0;
+//    virtual QByteArray outRegistration(QVector<QString> &information) = 0;
 
     /**
     * @brief
     * @return
     */
-    virtual QByteArray outAuthorization() = 0;
+//    virtual QByteArray outAuthorization() = 0;
 
     /**
     * @brief
     * @return
     */
-    virtual QByteArray outMessage() = 0;
+//    virtual QByteArray outMessage() = 0;
 
     /**
     * @brief
     * @return
     */
-    virtual QByteArray outNewGame() = 0;
+//    virtual QByteArray outNewGame() = 0;
 
     /**
     * @brief
     * @return
     */
-    virtual QByteArray outConnectGame() = 0;
+//    virtual QByteArray outConnectGame() = 0;
 
     /**
     * @brief
     * @return
     */
-    virtual QByteArray outDisconnectGame() = 0;
+//    virtual QByteArray outDisconnectGame() = 0;
 
     /**
     * @brief
     * @return
     */
-    virtual QByteArray outCancelGame() = 0;
+//    virtual QByteArray outCancelGame() = 0;
 
     /**
     * @brief
     * @return
     */
-    virtual QByteArray outStartGame() = 0;
+//    virtual QByteArray outStartGame() = 0;
 
     /**
     * @brief
     * @return
     */
-    virtual QByteArray outFinishGame() = 0;
+//    virtual QByteArray outFinishGame() = 0;
 
     /**
     * @brief
     * @return
     */
-    virtual QByteArray outListAllGame() = 0;
+//    virtual QByteArray outListAllGame() = 0;
 
     /**
     * @brief
     * @return
     */
-    virtual QByteArray outListAllNewGame() = 0;
+//    virtual QByteArray outListAllNewGame() = 0;
 
     /**
     * @brief
     * @return
     */
-    virtual QByteArray outTotalStatistics() = 0;
+//    virtual QByteArray outTotalStatistics() = 0;
 
     /**
     * @brief
     * @return
     */
-    virtual QByteArray outPlayerStatistics() = 0;
+//    virtual QByteArray outPlayerStatistics() = 0;
 
     /**
     * @brief
     * @return
     */
-    virtual QByteArray outMove() = 0;
+//    virtual QByteArray outMove() = 0;
 
     /** @}*/
 signals:

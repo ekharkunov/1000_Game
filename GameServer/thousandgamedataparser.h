@@ -10,6 +10,8 @@
 
 #include "abstractdataparser.h"
 
+class ThousandGameQueryHandler;
+
 /**
 * @class DataParser
 * @brief Класс, обеспечивающий корректную обработку поступающих данных и подготовку данных для передачи
@@ -19,8 +21,30 @@ class ThousandGameDataParser : public AbstractDataParser
 {
     Q_OBJECT
 public:
-    explicit ThousandGameDataParser(QObject *parent = 0);
+    /**
+    * @brief Стандартный конструктор
+    * @param parentHandler  Указатель на родительский обработчик запросов
+    * @param parent         Указатель на родительский объект
+    */
+    explicit ThousandGameDataParser(ThousandGameQueryHandler *parentHandler, QObject *parent = 0);
+
+    /**
+    * @brief Стандартный деструктор
+    */
     ~ThousandGameDataParser();
+
+    /**
+    * @brief Переопределена от AbstractDataParser::inRegistration
+    */
+    RegistrationData inRegistration(const QByteArray &data);
+
+    /**
+    * @brief Переопределена от AbstractDataParser::outRegistration
+    */
+    QByteArray outRegistration(QVector<QString> &information);
+private:
+    //! Указатель на обработчик очереди запросов
+    ThousandGameQueryHandler *handler;
 
 signals:
 

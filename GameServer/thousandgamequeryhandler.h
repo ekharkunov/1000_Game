@@ -25,7 +25,7 @@ public:
     /**
     * @brief Стандартный конструктор
     * @param parentServer   Указатель на объект игрового сервера "Тысяча"
-    * @param parent         Уrазатель на родительский объект
+    * @param parent         Указатель на родительский объект
     */
     explicit ThousandGameQueryHandler(ThousandGameServer *parentServer, QObject *parent = 0);
 

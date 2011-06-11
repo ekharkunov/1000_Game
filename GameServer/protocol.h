@@ -84,6 +84,13 @@ struct QueryStruct {
         str.type = static_cast<QueryType>(type);
         return stream;
     }
+
+    friend QByteArray& operator <<(QByteArray &array, QueryStruct &str) {
+        array.append(str.socketDescriptor);
+        array.append(str.type);
+        array.append(str.size);
+        return array;
+    }
 };
 
 #endif // PROTOCOL_H

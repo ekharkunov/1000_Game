@@ -106,7 +106,7 @@ private:
     //! Обработчик очереди запросов
     ThousandGameQueryHandler *requestHandler;
 
-    //! Список база данных данного сервера
+    //! Список баз данных данного сервера
     QList<QString> databaseNames;
 
     //! Массив ассоциаций имени БД с ее подключением

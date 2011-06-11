@@ -66,7 +66,7 @@ public:
     /**
     * @brief Получает состояние указанного сокета
     * @param socket Указатель на сокет, состояние которого необходимо узнать
-    * @return Состояние сокета
+    * @return Состояние сокета. Возвращает состояние SocketState::Undefined, если указанный сокет не найден
     * @sa SocketState
     */
     SocketState socketState(QTcpSocket *socket) const;
@@ -78,6 +78,13 @@ public:
     * @sa SocketState
     */
     void setSocketState(QTcpSocket *socket, SocketState state);
+
+    /**
+    * @brief Поиск сокета по указанному дескриптору
+    * @param descriptor Дескриптор сокета, который необходимо найти
+    * @return Указатель на найденный сокет. Если сокет не найден, возвращает 0
+    */
+    QTcpSocket* findSocket(int descriptor) const;
 public slots:
     /**
     * @brief Слот для добавления соединения в список существующих соединений

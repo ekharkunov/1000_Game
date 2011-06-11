@@ -25,6 +25,13 @@ void ConnectionManager::setSocketState(QTcpSocket *socket, SocketState state) {
         }
 }
 
+QTcpSocket* ConnectionManager::findSocket(int descriptor) const {
+    for (int i = 0; i < socketsArray.size(); i++)
+        if (socketsArray.at(i).socket->socketDescriptor() == descriptor)
+            return socketsArray.at(i).socket;
+    return 0;
+}
+
 void ConnectionManager::addConnection(QTcpSocket *socket) {
     Q_ASSERT(socket);
     SocketDescr sd;

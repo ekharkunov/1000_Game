@@ -31,6 +31,8 @@ ThousandGameServer::ThousandGameServer(int port, QObject *parent) :
     _mPort(port),
     state(AbstractGameServer::NotRunning)
 {
+    //Дописывать все необхоимые для сервера названия БД
+    //! TODO: Сделать регистрацию БД через внешний файл
     databaseNames << "1000_UserInformation.sqlite";
     _mManager = new ConnectionManager();
     connect(this, SIGNAL(connectionAborted(QTcpSocket*)), _mManager, SLOT(removeConnection(QTcpSocket*)));
@@ -51,8 +53,8 @@ bool ThousandGameServer::startServer() {
     bool isStarted = listen(QHostAddress::Any, _mPort);
     if (!isStarted) {//проверяем, удался ли захват порта
         QMessageBox::critical(0,
-                              "Game server error",
-                              "Unable to start the server:" + errorString());
+                              tr("Game server error"),
+                              tr("Unable to start the server:") + errorString());
         close();
         return false;
     }
@@ -75,23 +77,23 @@ void ThousandGameServer::stopServer() {
 
 bool ThousandGameServer::initDatabases() {
     QSqlDatabase tempDB;
-    tempDB = QSqlDatabase::addDatabase("QSQLITE");
     QList<QString>::iterator it = databaseNames.begin();
     for (; it != databaseNames.end(); ++it) {
         bool fileExist = QFile::exists(Config::pathDatabases.absolutePath() + "/" + *it);
         if (!fileExist) {//проверяем на предмет существования файла БД
             QMessageBox::warning(0,
-                                 "Warning",
-                                 "Database " + *it + " not found!");
+                                 tr("Warning"),
+                                 tr("Database ") + *it + tr(" not found!"));
             return false;
         }
         else {
+            tempDB = QSqlDatabase::addDatabase("QSQLITE", *it);
             tempDB.setDatabaseName(Config::pathDatabases.absolutePath() + "/" + *it);
             bool isOpened = tempDB.open();
             if (!isOpened) {//удалось ли открыть БД для работы
                 QMessageBox::critical(0,
-                                      "Database initialization error",
-                                      "Unable to initialization a "  + *it + "\n"
+                                      tr("Database initialization error"),
+                                      tr("Unable to initialization a ")  + *it + "\n"
                                       + tempDB.lastError().text());
                 return false;
             }
@@ -133,6 +135,8 @@ void ThousandGameServer::addRequestQuery() {
         stream.readRawData(buffer, sizeof(buffer));
         incomingRequest.append(buffer);
         requestSize -= blockSize;
+        blockSize = 0;
+        delete []buffer;
     }
     QDataStream byteHandler(&incomingRequest, QIODevice::ReadOnly);
     byteHandler>>requestQuery;
