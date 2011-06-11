@@ -25,3 +25,18 @@ QByteArray ThousandGameDataParser::outRegistration(QVector<QString> &information
         array.append(*it);
     return array;
 }
+
+AuthorizationData ThousandGameDataParser::inAuthorization(const QByteArray &data) {
+    AuthorizationData info;
+    QDataStream stream(data);
+    stream>>info;
+    return info;
+}
+
+QByteArray ThousandGameDataParser::outAuthorization(QVector<QString> &information) {
+    QByteArray array;
+    QVector<QString>::iterator it = information.begin();
+    for (; it != information.end(); ++it)
+        array.append(*it);
+    return array;
+}

@@ -11,6 +11,7 @@
 #include <QObject>
 #include <QString>
 #include <QDataStream>
+//#include <QByteArray>
 
 /**
 * @defgroup DataStructure Структуры данных для передачи
@@ -94,6 +95,41 @@ struct AuthorizationData {
     }
 };
 
+/**
+* struct PlayerInformation
+* @brief Структура описывает информацию о пользователе
+*/
+struct PlayerInformation {
+    //! ID пользователя
+    quint16 ID;
+    //! Ник пользователя
+    QString Nickname;
+    //! Настоящее имя пользователя
+    QString RealName;
+    //! Общее число игр
+    quint16 totalNumber;
+    //! Число побед
+    quint16 wins;
+    //! Число поражений
+    quint16 loses;
+
+    /**
+    * @brief
+    * @param
+    * @param
+    * @return
+    */
+    friend QByteArray& operator <<(QByteArray &array, const PlayerInformation &info) {
+        array.append(info.ID);
+        array.append(info.Nickname);
+        array.append(info.RealName);
+        array.append(info.totalNumber);
+        array.append(info.wins);
+        array.append(info.loses);
+        return array;
+    }
+};
+
 /** @}*/
 
 /**
@@ -125,15 +161,16 @@ public:
     /**
     * @brief Обработка данных о регистрации нового пользователя
     * @param data Данные о пользователе
-    * @return Данные, преобразованные в структуру
+    * @return Данные, преобразованные в структуру RegistrationData
     */
     virtual RegistrationData inRegistration(const QByteArray &data) = 0;
 
     /**
     * @brief Обработка данных для авторизации пользователя
     * @param data Данные для авторизации
+    * @return Данные, преобразованные в структуру AuthorizationData
     */
-//    virtual void inAuthorization(const QByteArray &data) = 0;
+    virtual AuthorizationData inAuthorization(const QByteArray &data) = 0;
 
     /**
     * @brief Обработка данных, необходимых для создания новой игры на сервере
@@ -182,15 +219,18 @@ public:
     /**
     * @brief Подготавливает данные о пользователе после регистрации
     * @param information Информация о результате регистрации
-    * @return Успешность выполнения операции регистрации и сообщения и возникших в ходе выполнения ошибках
+    * @return Сообщения, которые возникли в ходе работы. В случае успеха, содержит в себе сообщение
+    * "Registration successful!"
     */
-//    virtual QByteArray outRegistration(QVector<QString> &information) = 0;
+    virtual QByteArray outRegistration(QVector<QString> &information) = 0;
 
     /**
-    * @brief
-    * @return
+    * @brief Подготавливает данные о результатх авторизации
+    * @param information Информация о результатах авторизации
+    * @return Сообщения, которые возникли в ходе работы. В случае успеха, содержит в себе сообщение
+    * "Authorization successful!"
     */
-//    virtual QByteArray outAuthorization() = 0;
+    virtual QByteArray outAuthorization(QVector<QString> &information) = 0;
 
     /**
     * @brief

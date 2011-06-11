@@ -85,7 +85,7 @@ struct QueryStruct {
         return stream;
     }
 
-    friend QByteArray& operator <<(QByteArray &array, QueryStruct &str) {
+    friend QByteArray& operator <<(QByteArray &array, const QueryStruct &str) {
         array.append(str.socketDescriptor);
         array.append(str.type);
         array.append(str.size);

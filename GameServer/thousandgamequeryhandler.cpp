@@ -19,15 +19,17 @@ ThousandGameQueryHandler::~ThousandGameQueryHandler() {
 }
 
 void ThousandGameQueryHandler::run() {
-    QueryStruct incommingRequest;
-    QueryStruct outcommingRequest;
-    bool empty;
+    QueryStruct incommingRequest;//входящий запрос
+    QueryStruct outcommingRequest;//исходящий запрос
+    QVector<QString> messageArray;//массив сообщений
+    bool empty;//признак пустоты очереди
     do {
+        messageArray.clear();
         //считываем запрос, который находится первым в очереди
         server->locker.lockForRead();
         incommingRequest = server->_mRequestQueries.first();
         server->locker.unlock();
-        QByteArray inputData, outputData;
+        QByteArray inputData, outputData;//входящие и исходящие данные
         QTcpSocket *socket = 0;
         //! TODO: Предусмотреть обрыв соединения
         if (incommingRequest.size > 0) {
@@ -36,6 +38,7 @@ void ThousandGameQueryHandler::run() {
             Q_ASSERT_X(socket, "ThousandGameQueryHandler::run()", "Cannot find socket for reading");
             quint16 dataSize = incommingRequest.size;
             quint16 blockSize = 0;
+            //считываем данные для работы с запросом
             while(dataSize) {
                 blockSize = socket->bytesAvailable();
                 if (blockSize) {
@@ -48,39 +51,73 @@ void ThousandGameQueryHandler::run() {
                 }
                 else qDebug()<<"Null block";
             }
-            server->_mManager->setSocketState(socket, WaitForQueryTransmission);
         }
         QueryType type = incommingRequest.type;
         switch(type) {
+        //===============================================================================================
         case REGISTER : {
-            QVector<QString> errorMess;
             RegistrationData regInfo = parser->inRegistration(inputData);
             //! TODO: сделать ассоцииации с названием БД через файл
             QSqlDatabase db = server->mapName2Database.value("1000_UserInformation.sqlite");
             if (db.isValid())
-                errorMess.append(tr("Cannot find connetion to database 1000_UserInformation.sqlite"));
+                messageArray.append(tr("Cannot find connetion to database 1000_UserInformation.sqlite\n"));
             else {
                 QSqlQuery query(db);
-                QString strQuery = "INSERT INTO UserInformation "
-                        "(Nickname, Password, RealName, TotalNumberOfGames, Wins, Loses)"
-                        "VALUES('%1', '%2', '%3', 0, 0, 0);";
-                strQuery.arg(regInfo.nickName)
-                        .arg(regInfo.password)
-                        .arg(regInfo.realName);
+                QString strQuery = "SELECT Nickname FROM UserInformation WHERE Nickname = %1;";
+                strQuery.arg(regInfo.nickName);
                 query.prepare(strQuery);
                 query.exec();
-                if (!query.isActive()) errorMess.append(query.lastError().text());
-                else errorMess.append(tr("Registration successful!"));
+                if (query.isValid())
+                    messageArray.append(tr("The user with the same nickname is already exist!\n"));
+                else {
+                    strQuery = "INSERT INTO UserInformation "
+                            "(Nickname, Password, RealName, TotalNumberOfGames, Wins, Loses)"
+                            "VALUES('%1', '%2', '%3', 0, 0, 0);";
+                    strQuery.arg(regInfo.nickName)
+                            .arg(regInfo.password)
+                            .arg(regInfo.realName);
+                    query.prepare(strQuery);
+                    query.exec();
+                    if (!query.isActive()) messageArray.append(query.lastError().text());
+                    else messageArray.append(tr("Registration successful!\n"));
+                    query.finish();
+                }
             }
-            outputData = parser->outRegistration(errorMess);
+            outputData = parser->outRegistration(messageArray);
             outcommingRequest.socketDescriptor = incommingRequest.socketDescriptor;
             outcommingRequest.type = REGISTER;
             outcommingRequest.size = sizeof(outputData);
             break;
         }
+        //===============================================================================================
         case AUTHORIZATION : {
+            AuthorizationData authInfo = parser->inAuthorization(inputData);
+            QSqlDatabase db = server->mapName2Database.value("1000_UserInformation.sqlite");
+            if (db.isValid())
+                messageArray.append(tr("Cannot find connetion to database 1000_UserInformation.sqlite\n"));
+            else {
+                QSqlQuery query(db);
+                //проверка на наличие указанного пользователя
+                QString strQuery = "SELECT Nickname, Password FROM UserInformation "
+                        "WHERE Nickname = %1;";
+                strQuery.arg(authInfo.login);
+                query.prepare(strQuery);
+                query.exec();
+                if (!query.isValid())
+                    messageArray.append(tr("Invalid user login\n"));
+                else {//проверяем на совпадение паролей
+                    if (query.value(1).toString() != authInfo.password)
+                        messageArray.append(tr("Invalid user password\n"));
+                    else messageArray.append(tr("Authorization successful!\n"));
+                }
+            }
+            outputData = parser->outAuthorization(messageArray);
+            outcommingRequest.socketDescriptor = incommingRequest.socketDescriptor;
+            outcommingRequest.type = AUTHORIZATION;
+            outcommingRequest.size = sizeof(outputData);
             break;
         }
+        //===============================================================================================
         case MESSANGE : {
             break;
         }
@@ -124,9 +161,11 @@ void ThousandGameQueryHandler::run() {
         //отправка ответного запроса клиенту
         QByteArray byteRequest;
         byteRequest<<outcommingRequest;
+        server->_mManager->setSocketState(socket, WaitForQueryTransmission);
         server->sendToClient(byteRequest, socket);
+        server->_mManager->setSocketState(socket, WaitForDataTransmission);
         server->sendToClient(outputData, socket);
-
+        server->_mManager->setSocketState(socket, WaitForQueryTransmission);
         //удаляем обработанный запрос из очереди
         server->locker.lockForWrite();
         server->_mRequestQueries.removeFirst();
@@ -136,4 +175,5 @@ void ThousandGameQueryHandler::run() {
         empty = server->_mRequestQueries.isEmpty();
         server->locker.unlock();
     } while (!empty);
+
 }

@@ -13,7 +13,7 @@
 class ThousandGameQueryHandler;
 
 /**
-* @class DataParser
+* @class ThousandGameDataParser
 * @brief Класс, обеспечивающий корректную обработку поступающих данных и подготовку данных для передачи
 * клиентам
 */
@@ -42,6 +42,16 @@ public:
     * @brief Переопределена от AbstractDataParser::outRegistration
     */
     QByteArray outRegistration(QVector<QString> &information);
+
+    /**
+    * @brief Переопределена от AbstractDataParser::inAuthorization
+    */
+    AuthorizationData inAuthorization(const QByteArray &data);
+
+    /**
+    * @brief
+    */
+    QByteArray outAuthorization(QVector<QString> &information);
 private:
     //! Указатель на обработчик очереди запросов
     ThousandGameQueryHandler *handler;
