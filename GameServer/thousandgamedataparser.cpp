@@ -40,3 +40,26 @@ QByteArray ThousandGameDataParser::outAuthorization(QVector<QString> &informatio
         array.append(*it);
     return array;
 }
+
+QString ThousandGameDataParser::inPlayerStatistics(QByteArray &data) {
+    QString outStr;
+    quint16 size;
+    QDataStream stream(&data, QIODevice::ReadOnly);
+    stream>>size;
+    stream>>outStr;
+    return outStr;
+}
+
+QByteArray ThousandGameDataParser::outPlayerStatistics(const PlayerInformation &data) {
+    QByteArray outInfo;
+    outInfo<<data;
+    return outInfo;
+}
+
+QByteArray ThousandGameDataParser::outTotalStatistics(QVector<PlayerInformation> &data) {
+    QByteArray outArray;
+    QVector<PlayerInformation>::iterator it = data.begin();
+    for(; it != data.end(); ++it)
+        outArray<<*it;
+    return outArray;
+}

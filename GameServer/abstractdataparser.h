@@ -113,13 +113,58 @@ struct PlayerInformation {
     //! Число поражений
     quint16 loses;
 
+    //! Конструктор пустой структуры
+    PlayerInformation() :
+        ID(0),
+        Nickname(""),
+        RealName(""),
+        totalNumber(0),
+        wins(0),
+        loses(0) {}
+
     /**
-    * @brief
-    * @param
-    * @param
-    * @return
+    * @brief Перегруженный оператор помещения информации о пользователе в поток данных
+    * @param steram Поток с данными
+    * @param info   Информация о пользователе
+    * @return Поток с помещенными в него данными о пользователе
+    */
+    friend QDataStream& operator <<(QDataStream& stream, const PlayerInformation &info) {
+        stream<<sizeof(info);
+        stream<<info.ID
+              <<info.Nickname
+              <<info.RealName
+              <<info.totalNumber
+              <<info.wins
+              <<info.loses;
+        return stream;
+    }
+
+    /**
+    * @brief Перегруженный оператор извлечения информации о пользователе из потока данных
+    * @param stream Поток с данными
+    * @param info   Информация о пользователе
+    * @return Поток с извлеченными данными
+    */
+    friend QDataStream& operator >>(QDataStream& stream, PlayerInformation &info) {
+        quint32 size;
+        stream>>size;
+        stream>>info.ID
+              >>info.Nickname
+              >>info.RealName
+              >>info.totalNumber
+              >>info.wins
+              >>info.loses;
+        return stream;
+    }
+
+    /**
+    * @brief Перегруженный оператор помещения данных о пользователе в массив байт
+    * @param array  Массив байт
+    * @param info   Информация о пользователе
+    * @return Массив байт с записанной в него информацией
     */
     friend QByteArray& operator <<(QByteArray &array, const PlayerInformation &info) {
+        array.clear();
         array.append(info.ID);
         array.append(info.Nickname);
         array.append(info.RealName);
@@ -199,8 +244,9 @@ public:
     /**
     * @brief Обработка данных, необходимых для получения сведений об игроке
     * @param data Данные, содержащие информацию, необходимую для получения сведений об игроке
+    * @return Ник пользователя, о котором запрашивается информация
     */
-//    virtual void inPlayerStatistics(const QByteArray &data) = 0;
+    virtual QString inPlayerStatistics(QByteArray &data) = 0;
 
     /** @}*/
 
@@ -287,16 +333,18 @@ public:
 //    virtual QByteArray outListAllNewGame() = 0;
 
     /**
-    * @brief
-    * @return
+    * @brief Преобразование совокупной информации по серверу в массив байт
+    * @param data Совокупная информация
+    * @return Массив байт, содержащий всю информацию о зарегистрированных игроках на данном сервере
     */
-//    virtual QByteArray outTotalStatistics() = 0;
+    virtual QByteArray outTotalStatistics(QVector<PlayerInformation> &data) = 0;
 
     /**
-    * @brief
-    * @return
+    * @brief Преобразование информации о пользователе в массив байт
+    * @param data Информация о пользователе
+    * @return Массив с данными о пользователе
     */
-//    virtual QByteArray outPlayerStatistics() = 0;
+    virtual QByteArray outPlayerStatistics(const PlayerInformation &data) = 0;
 
     /**
     * @brief

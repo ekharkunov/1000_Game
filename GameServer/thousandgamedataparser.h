@@ -49,9 +49,24 @@ public:
     AuthorizationData inAuthorization(const QByteArray &data);
 
     /**
-    * @brief
+    * @brief Переопределена от AbstractDataParser::outAuthorization
     */
     QByteArray outAuthorization(QVector<QString> &information);
+
+    /**
+    * @brief Переопределена от AbstractDataParser::inPlayerStatistics
+    */
+    QString inPlayerStatistics(QByteArray &data);
+
+    /**
+    * @brief Переопределена от AbstractDataParser::outPlayerStatistics
+    */
+    QByteArray outPlayerStatistics(const PlayerInformation &data);
+
+    /**
+    * @brief Переопределна от AbstractDataParser::outTotalStatistics
+    */
+    QByteArray outTotalStatistics(QVector<PlayerInformation> &data);
 private:
     //! Указатель на обработчик очереди запросов
     ThousandGameQueryHandler *handler;

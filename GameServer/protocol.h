@@ -22,7 +22,7 @@ enum QueryType {
     //! Запрос на авторизацию пользователя
     AUTHORIZATION,
     //! Запрос на отправку сообщения в чат
-    MESSANGE,
+    MESSAGE,
     //! Запрос на создание новой игры
     NEWGAME,
     //! Запрос на подключение игрока к созданной игре
@@ -85,7 +85,14 @@ struct QueryStruct {
         return stream;
     }
 
+    /**
+    * @brief Перенруженный оператор помещения запроса в массив байт
+    * @param array  Массив байт
+    * @param str    Запрос
+    * @return Массив байт с помещенным запросом
+    */
     friend QByteArray& operator <<(QByteArray &array, const QueryStruct &str) {
+        array.clear();
         array.append(str.socketDescriptor);
         array.append(str.type);
         array.append(str.size);

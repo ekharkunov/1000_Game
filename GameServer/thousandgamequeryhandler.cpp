@@ -59,7 +59,7 @@ void ThousandGameQueryHandler::run() {
             RegistrationData regInfo = parser->inRegistration(inputData);
             //! TODO: сделать ассоцииации с названием БД через файл
             QSqlDatabase db = server->mapName2Database.value("1000_UserInformation.sqlite");
-            if (db.isValid())
+            if (!db.isValid())
                 messageArray.append(tr("Cannot find connetion to database 1000_UserInformation.sqlite\n"));
             else {
                 QSqlQuery query(db);
@@ -84,16 +84,14 @@ void ThousandGameQueryHandler::run() {
                 }
             }
             outputData = parser->outRegistration(messageArray);
-            outcommingRequest.socketDescriptor = incommingRequest.socketDescriptor;
             outcommingRequest.type = REGISTER;
-            outcommingRequest.size = sizeof(outputData);
             break;
         }
         //===============================================================================================
         case AUTHORIZATION : {
             AuthorizationData authInfo = parser->inAuthorization(inputData);
             QSqlDatabase db = server->mapName2Database.value("1000_UserInformation.sqlite");
-            if (db.isValid())
+            if (!db.isValid())
                 messageArray.append(tr("Cannot find connetion to database 1000_UserInformation.sqlite\n"));
             else {
                 QSqlQuery query(db);
@@ -112,13 +110,11 @@ void ThousandGameQueryHandler::run() {
                 }
             }
             outputData = parser->outAuthorization(messageArray);
-            outcommingRequest.socketDescriptor = incommingRequest.socketDescriptor;
             outcommingRequest.type = AUTHORIZATION;
-            outcommingRequest.size = sizeof(outputData);
             break;
         }
         //===============================================================================================
-        case MESSANGE : {
+        case MESSAGE : {
             break;
         }
         case NEWGAME : {
@@ -145,12 +141,54 @@ void ThousandGameQueryHandler::run() {
         case LISTALLNEWGAME : {
             break;
         }
+        //===============================================================================================
         case TOTALSTATISTICS : {
+            QSqlDatabase db = server->mapName2Database.value("1000_UserInformation.sqlite");
+            if (db.isValid()) {
+                QSqlQuery query(db);
+                query.prepare("SELECT * FROM UserInformation;");
+                query.exec();
+                PlayerInformation info;
+                QVector<PlayerInformation> infoVector;
+                while (query.next()) {
+                    info.ID = query.value(0).toUInt();
+                    info.Nickname = query.value(1).toString();
+                    info.RealName = query.value(3).toString();
+                    info.totalNumber = query.value(4).toUInt();
+                    info.wins = query.value(5).toUInt();
+                    info.loses = query.value(6).toUInt();
+                    infoVector.append(info);
+                }
+                outputData = parser->outTotalStatistics(infoVector);
+                outcommingRequest.type = TOTALSTATISTICS;
+            }
             break;
         }
+        //===============================================================================================
         case PLAYERSTATISTICS : {
+            QString nickName = parser->inPlayerStatistics(inputData);
+            QSqlDatabase db = server->mapName2Database.value("1000_UserInformation.sqlite");
+            if (db.isValid()) {
+                QSqlQuery query(db);
+                QString strQuery = "SELECT * FROM UserInformation WHERE Nickname = '%1';";
+                strQuery.arg(nickName);
+                query.prepare(strQuery);
+                query.exec();
+                PlayerInformation info = PlayerInformation();
+                if (query.isValid()) {
+                    info.ID = query.value(0).toUInt();
+                    info.Nickname = query.value(1).toString();
+                    info.RealName = query.value(3).toString();
+                    info.totalNumber = query.value(4).toUInt();
+                    info.wins = query.value(5).toUInt();
+                    info.loses = query.value(6).toUInt();
+                }
+                outputData = parser->outPlayerStatistics(info);
+                outcommingRequest.type = PLAYERSTATISTICS;
+            }
             break;
         }
+        //===============================================================================================
         case MOVE : {
             break;
         }
@@ -158,6 +196,8 @@ void ThousandGameQueryHandler::run() {
         }
 
         }
+        outcommingRequest.socketDescriptor = incommingRequest.socketDescriptor;
+        outcommingRequest.size = sizeof(outputData);
         //отправка ответного запроса клиенту
         QByteArray byteRequest;
         byteRequest<<outcommingRequest;
