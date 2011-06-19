@@ -57,7 +57,7 @@ struct QueryStruct {
     //! Тип запроса
     QueryType type;
     //! Размер передаваемых данных
-    qulonglong size;
+    qlonglong size;
     /**
     * @brief Перегруженный оператор помещения данных в поток
     * @param stream Поток с данными

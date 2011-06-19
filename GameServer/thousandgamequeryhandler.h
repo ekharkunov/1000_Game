@@ -44,6 +44,11 @@ private:
     ThousandGameServer *server;
     //! Уrазатель на обработчик данных
     ThousandGameDataParser *parser;
+signals:
+    //! Сигнал об изменении списка игроков
+    void userListChanged();
+//public slots:
+//    void start(Priority);
 };
 
 #endif // THOUSANDGAMEQUERYHANDLER_H

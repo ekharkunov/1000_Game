@@ -10,9 +10,10 @@
 #include <QSqlDatabase>
 #include <QReadWriteLock>
 #include "abstractgameserver.h"
+#include "connectionmanager.h"
 
-class ConnectionManager;
 class ThousandGameQueryHandler;
+class GameThousand;
 
 /**
 * @class ThousandGameServer
@@ -84,10 +85,34 @@ public:
     /**
     * @brief Получение текущего состояния сервера
     * @return состояние сервера
-    * @sa AbstractGameServer::states
+    * @sa AbstractGameServer::States
     */
-    AbstractGameServer::states serverState() const;
+    AbstractGameServer::States serverState() const;
+
+    /**
+    * @brief Создает новую игру
+    * @param creater    Информация о пользователе, который создает игру
+    * @param setting    Настройки игры
+    * @return Успешность создания
+    */
+    bool createNewGame(UserDescription creater, GameSettings settings);
+
+    /**
+    * @brief
+    * @param gameID
+    * @param user
+    * @return
+    */
+    bool connectToGame(quint16 gameID, UserDescription user);
 private:
+    /**
+    * @brief Поиск игры с указанным @p ID
+    * @param list   Указатель на список игр, в котором необходимо произвести поиск
+    * @param ID     ID игры
+    * @return Указатель на игру. Если игра не найдена возвращает 0
+    */
+    GameThousand* findGame(QList<GameThousand*> *list, quint16 ID);
+
     //! Объект класса ThousandGameServer
     static ThousandGameServer* _mInstance;
 
@@ -95,13 +120,16 @@ private:
     int _mPort;
 
     //! Текущее состояние сервера
-    AbstractGameServer::states state;
+    AbstractGameServer::States state;
 
     //! Менеждер соединений
     ConnectionManager* _mManager;
 
     //! Очередь запросов от клиентов
     QList<QueryStruct> _mRequestQueries;
+
+    //! Очередь ходов, которые поступают от всех клиентов
+    QList<QueryStruct> _mMoveQueries;
 
     //! Обработчик очереди запросов
     ThousandGameQueryHandler *requestHandler;
@@ -112,16 +140,26 @@ private:
     //! Массив ассоциаций имени БД с ее подключением
     QMap<QString, QSqlDatabase> mapName2Database;
 
-    //!
+    //! Блокировщик данных для обеспечения синхронизированного доступа к очереди запросов
     QReadWriteLock locker;
+
+    //! Список созданных игр, которые ожидают начала
+    QList<GameThousand*> listNewGame;
+
+    //! Список текущих запущенных игр
+    QList<GameThousand*> listCurrentGame;
+
+    //! Массив ассоциаций соединений с сервером
+    QMap<QTcpSocket*, QString> mapConnection2Nick;
 signals:
     //! Сигнал высылается в случае разрыва соединения одним из клиентов
     void connectionAborted(QTcpSocket*);
 
+    //! Сигнал высылается при добавлении нового запроса в очередь обработки ходов
+    void moveListChanged();
 private slots:
     //! Слот, определяющий соединение, которое будет разорвано
     void slotConnectionAborted();
-
 public slots:
     /**
     * @brief Слот для добавления нового соединения

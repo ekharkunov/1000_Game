@@ -40,8 +40,13 @@ struct RegistrationData {
     * @return Поток с данными
     */
     friend QDataStream& operator <<(QDataStream &stream, const RegistrationData &data) {
-        stream<<static_cast<quint32>(sizeof(data));
-        stream<<data.nickName<<data.password<<data.realName;
+
+        stream<<data.nickName.size()
+              <<data.nickName
+              <<data.password.size()
+              <<data.password
+              <<data.realName.size()
+              <<data.realName;
         return stream;
     }
 
@@ -52,9 +57,16 @@ struct RegistrationData {
     * @return Поток с данными
     */
     friend QDataStream& operator >>(QDataStream &stream, RegistrationData &data) {
-        quint32 size;
-        stream>>size;
-        stream>>data.nickName>>data.password>>data.realName;
+        quint32 strSize;
+        stream>>strSize;
+        data.nickName.resize(strSize);
+        stream>>data.nickName;
+        stream>>strSize;
+        data.password.resize(strSize);
+        stream>>data.password;
+        stream>>strSize;
+        data.realName.resize(strSize);
+        stream>>data.realName;
         return stream;
     }
 };
@@ -76,8 +88,10 @@ struct AuthorizationData {
     * @return Поток с данными
     */
     friend QDataStream& operator <<(QDataStream &stream, const AuthorizationData &data) {
-        stream<<static_cast<quint32>(sizeof(data));
-        stream<<data.login<<data.password;
+        stream<<data.login.size()
+              <<data.login
+              <<data.password.size()
+              <<data.password;
         return stream;
     }
 
@@ -88,19 +102,27 @@ struct AuthorizationData {
     * @return Поток с данными
     */
     friend QDataStream& operator >>(QDataStream &stream, AuthorizationData &data) {
-        quint32 size;
-        stream>>size;
-        stream>>data.login>>data.password;
+        quint32 strSize;
+        stream>>strSize;
+        data.login.resize(strSize);
+        stream>>data.login;
+        stream>>strSize;
+        data.password.resize(strSize);
+        stream>>data.password;
         return stream;
     }
 };
 
 /**
-* struct PlayerInformation
-* @brief Структура описывает информацию о пользователе
+* @struct PlayerInformation
+* @brief Структура описывает информацию о пользователе, которая хранится в БД сервера
 */
 struct PlayerInformation {
-    //! ID пользователя
+    /**
+    * @brief ID пользователя в БД.
+    * @note Не следует путать с ID пользователя, который присваивается при подключении к серверу.
+    * @sa UserDescription::connectionID
+    */
     quint16 ID;
     //! Ник пользователя
     QString Nickname;
@@ -124,14 +146,15 @@ struct PlayerInformation {
 
     /**
     * @brief Перегруженный оператор помещения информации о пользователе в поток данных
-    * @param steram Поток с данными
+    * @param stream Поток с данными
     * @param info   Информация о пользователе
     * @return Поток с помещенными в него данными о пользователе
     */
     friend QDataStream& operator <<(QDataStream& stream, const PlayerInformation &info) {
-        stream<<sizeof(info);
         stream<<info.ID
+              <<info.Nickname.size()
               <<info.Nickname
+              <<info.RealName.size()
               <<info.RealName
               <<info.totalNumber
               <<info.wins
@@ -146,11 +169,14 @@ struct PlayerInformation {
     * @return Поток с извлеченными данными
     */
     friend QDataStream& operator >>(QDataStream& stream, PlayerInformation &info) {
-        quint32 size;
-        stream>>size;
-        stream>>info.ID
-              >>info.Nickname
-              >>info.RealName
+        quint32 strSize;
+        stream>>info.ID;
+        stream>>strSize;
+        info.Nickname.resize(strSize);
+        stream>>info.Nickname;
+        stream>>strSize;
+        info.RealName.resize(strSize);
+        stream>>info.RealName
               >>info.totalNumber
               >>info.wins
               >>info.loses;
@@ -166,11 +192,72 @@ struct PlayerInformation {
     friend QByteArray& operator <<(QByteArray &array, const PlayerInformation &info) {
         array.clear();
         array.append(info.ID);
+        array.append(info.Nickname.size());
         array.append(info.Nickname);
+        array.append(info.RealName.size());
         array.append(info.RealName);
         array.append(info.totalNumber);
         array.append(info.wins);
         array.append(info.loses);
+        return array;
+    }
+};
+
+/**
+* @struct GameSettings
+* @brief Структура описывает данные, необходимые для настройки создаваемой игры
+*/
+struct GameSettings {
+    //! ID игрока, который создает игру
+    quint16 createrID;
+    /**
+    * @brief Количество игроков, на которое рассчитана создаваемая игра
+    * @note Должно быть от 2 до 4
+    */
+    quint8   playersNumber;
+    /**
+    * @brief Время, которое отводится участнику, чтобы сделать ход (значение передается в секундах)
+    * @note Должно быть в пределах от 30 до 90 секунд(возможные значения: 30, 45, 60, 90)
+    */
+    quint16  timeout;
+
+    /**
+    * @brief Перегруженный оператор помещения игровых настроек в поток данных
+    * @param stream     Поток с данными
+    * @param settings   Игровые настройки
+    * @return Поток с помещенными в него игровыми настройками
+    */
+    friend QDataStream& operator <<(QDataStream& stream, const GameSettings &settings) {
+        stream<<settings.createrID
+             <<settings.playersNumber
+            <<settings.timeout;
+        return stream;
+    }
+
+    /**
+    * @brief Перегруженный оператор извлечения игровых настроек из потока данных
+    * @param stream     Поток с данными
+    * @param settings   Игровые настройки
+    * @return Поток с извлеченными данными
+    */
+    friend QDataStream& operator >>(QDataStream& stream, GameSettings &settings) {
+        stream>>settings.createrID
+             >>settings.playersNumber
+            >>settings.timeout;
+        return stream;
+    }
+
+    /**
+    * @brief Перегруженный оператор помещения игровых настроек в массив байт
+    * @param array      Массив байт
+    * @param settings   Игровые настройки
+    * @return Массив байт с записанными в него настройками
+    */
+    friend QByteArray& operator <<(QByteArray &array, const GameSettings &settings) {
+        array.clear();
+        array.append(settings.createrID);
+        array.append(settings.playersNumber);
+        array.append(settings.timeout);
         return array;
     }
 };
@@ -220,33 +307,34 @@ public:
     /**
     * @brief Обработка данных, необходимых для создания новой игры на сервере
     * @param data Данные для создания игры
+    * @return Игровые настройки
     */
-//    virtual void inNewGame(const QByteArray &data) = 0;
+    virtual GameSettings inNewGame(const QByteArray &data) = 0;
 
     /**
     * @brief Обработка данных о подключении игрока к игре
     * @param data Данные о подключении к созданной игре
     */
-//    virtual void inConnectToGame(const QByteArray &data) = 0;
+    //    virtual void inConnectToGame(const QByteArray &data) = 0;
 
     /**
     * @brief Обработка данных об отключении от игры
     * @param data Данные об отключении игрока от созданной игры(до момента запуска)
     */
-//    virtual void inDisconnectGame(const QByteArray &data) = 0;
+    //    virtual void inDisconnectGame(const QByteArray &data) = 0;
 
     /**
     * @brief Обработка данных об отмене созданной игры
     * @param data Данные, содержащие информацию об отмене созданной игры
     */
-//    virtual void inCancelGame(const QByteArray &data) = 0;
+    //    virtual void inCancelGame(const QByteArray &data) = 0;
 
     /**
     * @brief Обработка данных, необходимых для получения сведений об игроке
     * @param data Данные, содержащие информацию, необходимую для получения сведений об игроке
     * @return Ник пользователя, о котором запрашивается информация
     */
-    virtual QString inPlayerStatistics(QByteArray &data) = 0;
+    virtual QString inPlayerStatistics(const QByteArray &data) = 0;
 
     /** @}*/
 
@@ -260,7 +348,7 @@ public:
     * @brief Подготавливает набор данных для отправки клиенту, который только что подключился к серверу
     * @return Набор данных, высылаемых при подключении нового клиента
     */
-//    virtual QByteArray outInfoForNewConnection() = 0;
+    //    virtual QByteArray outInfoForNewConnection() = 0;
 
     /**
     * @brief Подготавливает данные о пользователе после регистрации
@@ -282,55 +370,55 @@ public:
     * @brief
     * @return
     */
-//    virtual QByteArray outMessage() = 0;
+    //    virtual QByteArray outMessage() = 0;
 
     /**
     * @brief
     * @return
     */
-//    virtual QByteArray outNewGame() = 0;
+    //    virtual QByteArray outNewGame() = 0;
 
     /**
     * @brief
     * @return
     */
-//    virtual QByteArray outConnectGame() = 0;
+    //    virtual QByteArray outConnectGame() = 0;
 
     /**
     * @brief
     * @return
     */
-//    virtual QByteArray outDisconnectGame() = 0;
+    //    virtual QByteArray outDisconnectGame() = 0;
 
     /**
     * @brief
     * @return
     */
-//    virtual QByteArray outCancelGame() = 0;
+    //    virtual QByteArray outCancelGame() = 0;
 
     /**
     * @brief
     * @return
     */
-//    virtual QByteArray outStartGame() = 0;
+    //    virtual QByteArray outStartGame() = 0;
 
     /**
     * @brief
     * @return
     */
-//    virtual QByteArray outFinishGame() = 0;
+    //    virtual QByteArray outFinishGame() = 0;
 
     /**
     * @brief
     * @return
     */
-//    virtual QByteArray outListAllGame() = 0;
+    //    virtual QByteArray outListAllGame() = 0;
 
     /**
     * @brief
     * @return
     */
-//    virtual QByteArray outListAllNewGame() = 0;
+    //    virtual QByteArray outListAllNewGame() = 0;
 
     /**
     * @brief Преобразование совокупной информации по серверу в массив байт
@@ -350,7 +438,7 @@ public:
     * @brief
     * @return
     */
-//    virtual QByteArray outMove() = 0;
+    //    virtual QByteArray outMove() = 0;
 
     /** @}*/
 signals:

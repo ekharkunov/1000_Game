@@ -10,6 +10,7 @@
 
 #include <QTcpServer>
 #include "protocol.h"
+#include "abstractdataparser.h"
 
 /**
 * @class AbstractGameServer
@@ -20,10 +21,10 @@ class AbstractGameServer : public QTcpServer
     Q_OBJECT
 protected:
     /**
-    * @enum states
+    * @enum States
     * @brief Перечисление опысывает состояние игрового сервера
     */
-    enum states {
+    enum States {
         //! Сервер работает
         Running,
         //! Сервер остановлен либо не был запущен
@@ -58,7 +59,7 @@ public:
     * @brief Определяет текущее состояние игрового сервера
     * @return Текущее состояние сервера
     */
-    virtual states serverState() const = 0;
+    virtual States serverState() const = 0;
 
     /**
     * @brief Метод для отправки данных клиенту

@@ -56,7 +56,7 @@ public:
     /**
     * @brief Переопределена от AbstractDataParser::inPlayerStatistics
     */
-    QString inPlayerStatistics(QByteArray &data);
+    QString inPlayerStatistics(const QByteArray &data);
 
     /**
     * @brief Переопределена от AbstractDataParser::outPlayerStatistics
@@ -67,6 +67,11 @@ public:
     * @brief Переопределна от AbstractDataParser::outTotalStatistics
     */
     QByteArray outTotalStatistics(QVector<PlayerInformation> &data);
+
+    /**
+    * @brief Переопределена от AbstractDataParser::inNewGame
+    */
+    GameSettings inNewGame(const QByteArray &data);
 private:
     //! Указатель на обработчик очереди запросов
     ThousandGameQueryHandler *handler;

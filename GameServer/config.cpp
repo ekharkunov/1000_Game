@@ -1,9 +1,3 @@
-/**
-* @file config.cpp
-* @brief
-* @author Kharkunov Eugene
-* @date 2.06.2011
-*/
 #include "config.h"
 
 QDir Config::rootDirectory = QDir("");

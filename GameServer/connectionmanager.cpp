@@ -5,49 +5,91 @@ ConnectionManager::ConnectionManager(QObject *parent) : QObject(parent)
 }
 
 ConnectionManager::~ConnectionManager() {
-    for (int i = 0; i < socketsArray.size(); i++)
-        delete socketsArray.at(i).socket;
-    socketsArray.clear();
+    for (int i = 0; i < userList.size(); i++)
+        delete userList.at(i).socket;
+    userList.clear();
 }
 
 SocketState ConnectionManager::socketState(QTcpSocket *socket) const {
-    for (int i = 0; i < socketsArray.size(); i++)
-        if (socketsArray.at(i).socket == socket)
-            return socketsArray.at(i)._mState;
+    for (int i = 0; i < userList.size(); i++)
+        if (userList.at(i).socket == socket)
+            return userList.at(i)._mState;
     return Undefined;
 }
 
 void ConnectionManager::setSocketState(QTcpSocket *socket, SocketState state) {
-    for (int i = 0; i < socketsArray.size(); i++)
-        if (socketsArray.at(i).socket == socket) {
-            socketsArray.value(i)._mState = state;
+    for (int i = 0; i < userList.size(); i++)
+        if (userList.at(i).socket == socket) {
+            userList.value(i)._mState = state;
             break;
         }
 }
 
 QTcpSocket* ConnectionManager::findSocket(int descriptor) const {
-    for (int i = 0; i < socketsArray.size(); i++)
-        if (socketsArray.at(i).socket->socketDescriptor() == descriptor)
-            return socketsArray.at(i).socket;
+    for (int i = 0; i < userList.size(); i++)
+        if (userList.at(i).socket->socketDescriptor() == descriptor)
+            return userList.at(i).socket;
     return 0;
+}
+
+QString ConnectionManager::userNick(QTcpSocket *socket) const {
+    for (int i = 0; i < userList.size(); i++)
+        if (userList.at(i).socket == socket)
+            return userList.at(i).UserNick;
+    return QString();
+}
+
+void ConnectionManager::setUserNick(QTcpSocket *socket, QString nickName) {
+    for (int i = 0; i < userList.size(); i++)
+        if (userList.at(i).socket == socket) {
+            userList.value(i).UserNick = nickName;
+            break;
+        }
+}
+
+bool ConnectionManager::authorizationFlag(QTcpSocket *socket) const {
+    for (int i = 0; i < userList.size(); i++)
+        if (userList.at(i).socket == socket)
+            return userList.at(i).isAuthorize;
+    return false;
+}
+
+void ConnectionManager::setAuthorizationFlag(QTcpSocket *socket, bool flag) {
+    for (int i = 0; i < userList.size(); i++)
+        if (userList.at(i).socket == socket) {
+            userList.value(i).isAuthorize = flag;
+            break;
+        }
 }
 
 void ConnectionManager::addConnection(QTcpSocket *socket) {
     Q_ASSERT(socket);
-    SocketDescr sd;
+    UserDescription sd;
     sd.socket = socket;
     sd._mState = WaitForQueryTransmission;
-    socketsArray.push_back(sd);
+    sd.UserNick = tr("Guest") + QString::number(socket->socketDescriptor());
+    sd.isAuthorize = false;
+    sd.ConnectionID = socket->socketDescriptor();
+    sd.GameID = 0;
+    userList.push_back(sd);
 }
 
 void ConnectionManager::removeConnection(QTcpSocket *socket) {
     Q_ASSERT(socket);
     qDebug()<<"1234";
     int position = -1;
-    for (int i = 0; i < socketsArray.size(); i++)
-        if (socketsArray.at(i).socket == socket) { position = i; break; }
+    for (int i = 0; i < userList.size(); i++)
+        if (userList.at(i).socket == socket) { position = i; break; }
     qDebug()<<position;
     Q_ASSERT(position != -1);
-    socketsArray.remove(position);
-    qDebug()<<socketsArray.isEmpty();
+    userList.removeAt(position);
+    qDebug()<<userList.isEmpty();
+}
+
+UserDescription ConnectionManager::getUserDescription(quint32 ID) {
+    UserDescription sd;
+    for (int i = 0; i < userList.size(); i++)
+        if (userList.at(i).ConnectionID == ID)
+            return userList.at(i);
+    return sd;
 }

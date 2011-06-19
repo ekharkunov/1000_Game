@@ -11,7 +11,7 @@
 #include <QThread>
 
 /**
-* @class QueryHandler
+* @class AbstractQueryHandler
 * @brief Класс обработки очереди запросов, поступивших на сервер. Выполняется в отдельном потоке
 */
 class AbstractQueryHandler : public QThread

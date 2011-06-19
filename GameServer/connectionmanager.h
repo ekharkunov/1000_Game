@@ -3,13 +3,13 @@
 * @author Kharkunov Eugene
 * @date 2.06.2011
 * @brief Файл содержит описание класса менеджера соединений, а также перечисления и структуры,
-* которые описывают сокет
+* которые описывают конкретного пользователя
 */
 
 #ifndef CONNECTIONMANAGER_H
 #define CONNECTIONMANAGER_H
 #include <QObject>
-#include <QVector>
+#include <QList>
 #include <QTcpSocket>
 
 /**
@@ -30,17 +30,30 @@ enum SocketState{
 };
 
 /**
-* @struct SocketDesc
-* @brief Структура для описания конкретного сокета
-*
-* Содержит в себе указатель на сокет и его состояние
-* @sa SocketState
+* @struct UserDescription
+* @brief Структура для описания конкретного пользователя
 */
-struct SocketDescr{
+struct UserDescription{
     //! Указатель на сокет
     QTcpSocket *socket;
     //! Состояние сокета
     SocketState _mState;
+    //! Ник пользователя, ассоциированный с данным соединением
+    QString UserNick;
+    //! Флаг авторизации
+    bool isAuthorize;
+    /**
+    * @brief ID пользователя, который он получает при подключении.
+    * @note Не следует путать с ID пользователя, который хранится в БД сервера
+    * @sa PlayerInformation::ID
+    */
+    quint16 ConnectionID;
+    /**
+    * @brief ID игры, к которой подключен пользователь.
+    * @note Для пользователя, который создавал игру, его ID, полученный при подключении, совпадает с ID игры
+    */
+    quint16 GameID;
+
 };
 
 /**
@@ -50,7 +63,6 @@ struct SocketDescr{
 class ConnectionManager : public QObject
 {
     Q_OBJECT
-    friend class QueryHandler;
 public:
     /**
     * @brief Стандартный конструктор
@@ -85,6 +97,41 @@ public:
     * @return Указатель на найденный сокет. Если сокет не найден, возвращает 0
     */
     QTcpSocket* findSocket(int descriptor) const;
+
+    /**
+    * @brief Получает ник пользователя, который ассоциирован с данным соединением
+    * @param socket Сокет, посредством которого обеспечивается соединение
+    * @return Ник пользователя
+    */
+    QString userNick(QTcpSocket *socket) const;
+
+    /**
+    * @brief Устанавливает ассоциацию указанного ника для данного соединения
+    * @param socket     Сокет, посредством которого обеспечивается соединение
+    * @param nickName   Новый ник пользователя, который нужно установить
+    */
+    void setUserNick(QTcpSocket *socket, QString nickName);
+
+    /**
+    * @brief Получает признак авторизованности пользователя для данного соединения
+    * @param socket Сокет, посредством котороо обеспечивается соединение
+    * @return Признак авторизованности пользователя
+    */
+    bool authorizationFlag(QTcpSocket *socket) const;
+
+    /**
+    * @brief Устанавливает флаг авторизации для заданного соединения
+    * @param socket Сокет, посредством которого установлено соединение
+    * @param flag   Признак авторизации пользователя
+    */
+    void setAuthorizationFlag(QTcpSocket *socket, bool flag);
+
+    /**
+    * @brief Получение информации о пользователе по ID его соединения
+    * @param ID ID соединения
+    * @return Информация о пользователе
+    */
+    UserDescription getUserDescription(quint32 ID);
 public slots:
     /**
     * @brief Слот для добавления соединения в список существующих соединений
@@ -101,8 +148,8 @@ public slots:
     */
     void removeConnection(QTcpSocket *socket);
 private:
-    //! Список сокетов и их состояний для существующих соединений
-    QVector<SocketDescr> socketsArray;
+    //! Список пользователей, подключенных к серверу
+    QList<UserDescription> userList;
 };
 
 #endif // CONNECTIONMANAGER_H

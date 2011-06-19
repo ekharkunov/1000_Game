@@ -7,8 +7,8 @@
 
 #include "thousandgameserver.h"
 #include "config.h"
-#include "connectionmanager.h"
 #include "thousandgamequeryhandler.h"
+#include "gamethousand.h"
 #include <QMessageBox>
 #include <QSqlError>
 #include <QSqlQuery>
@@ -37,7 +37,7 @@ ThousandGameServer::ThousandGameServer(int port, QObject *parent) :
     _mManager = new ConnectionManager();
     connect(this, SIGNAL(connectionAborted(QTcpSocket*)), _mManager, SLOT(removeConnection(QTcpSocket*)));
     requestHandler = new ThousandGameQueryHandler(this);
-    connect(this, SIGNAL(queryListChanged()), requestHandler, SLOT(start(QThread::LowPriority)), Qt::DirectConnection);
+    connect(this, SIGNAL(queryListChanged()), requestHandler, SLOT(start(QThread::LowPriority))/*, Qt::DirectConnection*/);
 }
 
 ThousandGameServer::~ThousandGameServer() {
@@ -45,7 +45,7 @@ ThousandGameServer::~ThousandGameServer() {
     delete requestHandler;
 }
 
-AbstractGameServer::states ThousandGameServer::serverState() const {
+AbstractGameServer::States ThousandGameServer::serverState() const {
     return state;
 }
 
@@ -144,16 +144,32 @@ void ThousandGameServer::addRequestQuery() {
         requestQuery.socketDescriptor = socket->socketDescriptor();
         Q_ASSERT(requestQuery.socketDescriptor != -1);
         //ставим запрос в очередь обработки
-        locker.lockForWrite();
-        _mRequestQueries.append(requestQuery);
-        locker.unlock();
-        _mManager->setSocketState(socket, WaitForDataTransmission);
-        emit (queryListChanged());//высылаем сигнал об изменении в очереди запросов
+        if (requestQuery.type != MOVE) {
+            locker.lockForWrite();
+            _mRequestQueries.append(requestQuery);
+            locker.unlock();
+            emit (queryListChanged());//высылаем сигнал об изменении в очереди запросов
+        }
+        //запрос на обработку хода ставим в отдельную очередь
+        else {
+            locker.lockForWrite();
+            _mMoveQueries.append(requestQuery);
+            locker.unlock();
+            emit (moveListChanged());
+        }
+        if (requestQuery.size != -1)
+            _mManager->setSocketState(socket, WaitForDataTransmission);
+
     }
 }
 
 void ThousandGameServer::sendToClient(QByteArray &array, QTcpSocket *socket) {
-
+    QByteArray block;
+    QDataStream stream(&block, QIODevice::WriteOnly);
+    stream<<quint16(0)<<array;
+    stream.device()->seek(0);
+    stream<<quint16(block.size() - sizeof(quint16));
+    socket->write(block);
 }
 
 void ThousandGameServer::addNewConnection() {
@@ -162,9 +178,33 @@ void ThousandGameServer::addNewConnection() {
     connect(socket, SIGNAL(disconnected()), this, SLOT(slotConnectionAborted()));
     connect(socket, SIGNAL(disconnected()), this, SLOT(deleteLater()));
     connect(socket, SIGNAL(readyRead()), this, SLOT(addRequestQuery()));
+    //! TODO: сделать отсылку информации о состоянии сервера
 }
 
 void ThousandGameServer::slotConnectionAborted() {
     QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
     emit(connectionAborted(socket));
+}
+
+GameThousand* ThousandGameServer::findGame(QList<GameThousand *> *list, quint16 ID) {
+    QList<GameThousand*>::iterator it = list->begin();
+    for (; it != list->end(); ++it) {
+        GameThousand *game = *it;
+        if (game->gameID() == ID)
+            return game;
+    }
+    return 0;
+}
+
+bool ThousandGameServer::createNewGame(UserDescription creater, GameSettings settings) {
+    GameThousand *game = new GameThousand(creater, settings.playersNumber, settings.timeout);
+    listNewGame.append(game);
+    return true;
+}
+
+bool ThousandGameServer::connectToGame(quint16 gameID, UserDescription user) {
+    GameThousand *game = findGame(&listNewGame, gameID);
+    if (game)
+        return game->addPlayer(user);
+    else return false;
 }

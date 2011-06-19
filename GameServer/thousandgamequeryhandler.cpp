@@ -63,7 +63,7 @@ void ThousandGameQueryHandler::run() {
                 messageArray.append(tr("Cannot find connetion to database 1000_UserInformation.sqlite\n"));
             else {
                 QSqlQuery query(db);
-                QString strQuery = "SELECT Nickname FROM UserInformation WHERE Nickname = %1;";
+                QString strQuery = "SELECT Nickname FROM UserInformation WHERE Nickname = '%1';";
                 strQuery.arg(regInfo.nickName);
                 query.prepare(strQuery);
                 query.exec();
@@ -97,7 +97,7 @@ void ThousandGameQueryHandler::run() {
                 QSqlQuery query(db);
                 //проверка на наличие указанного пользователя
                 QString strQuery = "SELECT Nickname, Password FROM UserInformation "
-                        "WHERE Nickname = %1;";
+                        "WHERE Nickname = '%1';";
                 strQuery.arg(authInfo.login);
                 query.prepare(strQuery);
                 query.exec();
@@ -106,7 +106,13 @@ void ThousandGameQueryHandler::run() {
                 else {//проверяем на совпадение паролей
                     if (query.value(1).toString() != authInfo.password)
                         messageArray.append(tr("Invalid user password\n"));
-                    else messageArray.append(tr("Authorization successful!\n"));
+                    else {
+                        Q_ASSERT_X(socket, "Authorization query", "Socket pointer is null");
+                        server->_mManager->setUserNick(socket, authInfo.login);
+                        server->_mManager->setAuthorizationFlag(socket, true);
+                        messageArray.append(tr("Authorization successful!\n"));
+                        emit(userListChanged());
+                    }
                 }
             }
             outputData = parser->outAuthorization(messageArray);
@@ -118,6 +124,9 @@ void ThousandGameQueryHandler::run() {
             break;
         }
         case NEWGAME : {
+            UserDescription user = server->_mManager->getUserDescription(socket->socketDescriptor());
+            GameSettings settings = parser->inNewGame(inputData);
+            server->createNewGame(user, settings);
             break;
         }
         case CONNECTGAME : {
@@ -189,9 +198,6 @@ void ThousandGameQueryHandler::run() {
             break;
         }
         //===============================================================================================
-        case MOVE : {
-            break;
-        }
         default : {
         }
 

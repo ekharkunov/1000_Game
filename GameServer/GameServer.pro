@@ -16,7 +16,6 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     mainserver.cpp \
     abstractgameserver.cpp \
-    config.cpp \
     gameserverfactory.cpp \
     httpserver.cpp \
     thousandgameserverfactory.cpp \
@@ -26,7 +25,8 @@ SOURCES += main.cpp\
     abstractqueryhandler.cpp \
     thousandgamequeryhandler.cpp \
     abstractdataparser.cpp \
-    thousandgamedataparser.cpp
+    thousandgamedataparser.cpp \
+    config.cpp
 
 HEADERS  += mainwindow.h \
     mainserver.h \
@@ -43,7 +43,8 @@ HEADERS  += mainwindow.h \
     abstractqueryhandler.h \
     thousandgamequeryhandler.h \
     abstractdataparser.h \
-    thousandgamedataparser.h
+    thousandgamedataparser.h \
+    card.h
 
 OTHER_FILES += \
     ProtocolDescription.txt
