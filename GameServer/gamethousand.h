@@ -51,6 +51,22 @@ public:
     quint16 gameID() const;
 
     /**
+    *
+    */
+    quint16 timeout() const;
+
+    /**
+    *
+    */
+    quint8 playerNumber() const;
+
+    /**
+    * @brief
+    * @return
+    */
+    QList<UserDescription>& players();
+
+    /**
     * @brief Обрабатывает процесс игры
     */
     void run();
@@ -74,15 +90,15 @@ public:
     QFile createLog();
 private:
     //! ID игры
-    quint16 ID;
+    quint16 _mID;
     //! Число игроков
-    quint8 playerNumber;
+    quint8 _mPlayerNumber;
     //! Продолжительность хода
-    quint16 timeout;
+    quint16 _mTimeout;
     //! ID игрока, который раздает в текущем цикле
     quint16 currentDealer;
     //! Спосок подключенных к данной игре участников
-    QVector<UserDescription> playerList;
+    QList<UserDescription> _mPlayerList;
     //! Список карт, которые на руках в данный момент у игроков(ID игрока, набор карт)
     QMap< quint16, CardPack > mapPlayer2CardSet;
     //! Счет(ID игрока, его динамика счета)

@@ -3,11 +3,11 @@
 
 GameThousand::GameThousand(UserDescription creater, quint8 number, quint16 time, QObject *parent) :
     QThread(parent),
-    ID(creater.ConnectionID),
-    playerNumber(number),
-    timeout(time)
+    _mID(creater.ConnectionID),
+    _mPlayerNumber(number),
+    _mTimeout(time)
 {
-    playerList.append(creater);
+    _mPlayerList.append(creater);
 }
 
 GameThousand::~GameThousand() {
@@ -15,15 +15,27 @@ GameThousand::~GameThousand() {
 }
 
 bool GameThousand::addPlayer(UserDescription user) {
-    if (playerNumber > playerList.size()) {
-        playerList.append(user);
+    if (_mPlayerNumber > _mPlayerList.size()) {
+        _mPlayerList.append(user);
         return true;
     }
     else return false;
 }
 
 quint16 GameThousand::gameID() const {
-    return ID;
+    return _mID;
+}
+
+quint16 GameThousand::timeout() const {
+    return _mTimeout;
+}
+
+quint8 GameThousand::playerNumber() const {
+    return _mPlayerNumber;
+}
+
+QList<UserDescription>& GameThousand::players() {
+    return _mPlayerList;
 }
 
 void GameThousand::run() {

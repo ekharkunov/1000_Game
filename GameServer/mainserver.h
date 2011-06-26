@@ -7,15 +7,14 @@
 #ifndef MAINSERVER_H
 #define MAINSERVER_H
 
-#include <QWidget>
-
+#include <QtGui/QMainWindow>
 
 /**
 * @class MainServer
 * @brief Класс, реализующий работу главного сервера
 * @note Реализован как синглетон
 */
-class MainServer : public QWidget
+class MainServer : public QMainWindow
 {
     Q_OBJECT
 public:
@@ -38,7 +37,24 @@ public:
     ~MainServer();
 
 private:
+    /**
+    * @brief Создание меню
+    */
+    void createMenus();
+    //! Объект класса MainServer
     static MainServer *server;
+
+    //!
+    QMenu *fileMenu;
+    QMenu *settingsMenu;
+    QMenu *aboutMenu;
+
+    QDockWidget *serversList;
+    QDockWidget *controlButtons;
+    QDockWidget *errorMessages;
+private slots:
+    void retranslateApp();
+    void aboutQt();
 };
 
 #endif // MAINSERVER_H

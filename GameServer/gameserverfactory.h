@@ -9,7 +9,7 @@
 
 #include <QObject>
 #include <QMap>
-
+#include "abstractgameserver.h"
 
 /**
 * @class GameServerFactory
@@ -41,9 +41,8 @@ public:
     /**
     * @brief Удаляет зарегистрированную фабрику
     * @param name       Название игрового сервера
-    * @param port       Порт игрового сервера с именем @p name
     */
-    static void unregisterFactory(QString name, int port);
+    static void unregisterFactory(QString name);
 
     /**
     * @brief Удаляет все зарешистрированные фабрики
@@ -54,15 +53,16 @@ public:
     * @brief Возвращает список зарегистрированных фабрик
     * @return Список зарегистрированных серверов
     */
-    static QList<QString> registeredServer();
+    static QList<AbstractGameServer*> registeredServer();
 
     /**
     * @brief Создает объект класса игрового сервера
     */
-    virtual void createServerInstance() = 0;
+    virtual AbstractGameServer* createServerInstance() = 0;
 private:
     //! Массив зарегистрированных фабрик
     static QMap<QString, GameServerFactory*> factories;
+    static QList<AbstractGameServer*> servers;
 signals:
 
 public slots:

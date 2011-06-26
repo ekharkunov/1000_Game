@@ -34,10 +34,11 @@ protected:
 public:
     /**
     * @brief Стандартный конструктор
+    * @param name Имя игрового сервера
     * @param port Номер порта, который будет прослушивать игровой сервер
     * @param parent Указатель на родительский объект
     */
-    explicit AbstractGameServer(int port, QObject *parent = 0);
+    explicit AbstractGameServer(QString name, int port, QObject *parent = 0);
 
     /**
     * @brief Стандартный деструктор
@@ -60,6 +61,12 @@ public:
     * @return Текущее состояние сервера
     */
     virtual States serverState() const = 0;
+
+    /**
+    * @brief Возвращает имя сервера
+    * @return Имя сервера
+    */
+    virtual QString serverName() const = 0;
 
     /**
     * @brief Метод для отправки данных клиенту

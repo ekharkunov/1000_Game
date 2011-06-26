@@ -19,9 +19,9 @@ class ThousandGameServerFactory : public GameServerFactory
 {
 public:
     /**
-    * @brief Переопределена от @see GameServerFactory::createServerInstance()
+    * @brief Переопределена от GameServerFactory::createServerInstance
     */
-    void createServerInstance();
+    AbstractGameServer* createServerInstance();
 };
 
 #endif // THOUSANDGAMESERVERFACTORY_H

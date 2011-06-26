@@ -19,15 +19,16 @@ ThousandGameServer* ThousandGameServer::_mInstance = 0;
 
 ThousandGameServer* ThousandGameServer::getInstance() {
     if (!_mInstance)
-        _mInstance = new ThousandGameServer(Config::portsForGameServers.value("Game: 1000"));
+        _mInstance = new ThousandGameServer("Game: 1000", Config::portsForGameServers.value("Game: 1000"));
     return _mInstance;
 }
 
 void ThousandGameServer::destroy() {
 }
 
-ThousandGameServer::ThousandGameServer(int port, QObject *parent) :
-    AbstractGameServer(port, parent),
+ThousandGameServer::ThousandGameServer(QString name, int port, QObject *parent) :
+    AbstractGameServer(name, port, parent),
+    _mName(name),
     _mPort(port),
     state(AbstractGameServer::NotRunning)
 {
@@ -37,7 +38,7 @@ ThousandGameServer::ThousandGameServer(int port, QObject *parent) :
     _mManager = new ConnectionManager();
     connect(this, SIGNAL(connectionAborted(QTcpSocket*)), _mManager, SLOT(removeConnection(QTcpSocket*)));
     requestHandler = new ThousandGameQueryHandler(this);
-    connect(this, SIGNAL(queryListChanged()), requestHandler, SLOT(start(QThread::LowPriority))/*, Qt::DirectConnection*/);
+    connect(this, SIGNAL(queryListChanged()), requestHandler, SLOT(start())/*, Qt::DirectConnection*/);
 }
 
 ThousandGameServer::~ThousandGameServer() {
@@ -47,6 +48,10 @@ ThousandGameServer::~ThousandGameServer() {
 
 AbstractGameServer::States ThousandGameServer::serverState() const {
     return state;
+}
+
+QString ThousandGameServer::serverName() const {
+    return _mName;
 }
 
 bool ThousandGameServer::startServer() {
@@ -120,7 +125,7 @@ void ThousandGameServer::addRequestQuery() {
     // проверяем состояние сокета
     if (_mManager->socketState(socket) != WaitForQueryTransmission) return;
     quint16 blockSize = 0;//размер блока передаваемых данных
-    quint16 requestSize = sizeof(QueryStruct) - sizeof(quint16);//количество байт, которое нам надо считать
+    quint16 requestSize = sizeof(QueryStruct) - 2 * sizeof(quint16);//количество байт, которое нам надо считать
     QueryStruct requestQuery;// преобразованный запрос
     QByteArray incomingRequest;//массив, куда считываются данные из потока
     QDataStream stream(socket);//поток считывания данных
@@ -132,8 +137,8 @@ void ThousandGameServer::addRequestQuery() {
             break;
         }
         char *buffer = new char[blockSize];
-        stream.readRawData(buffer, sizeof(buffer));
-        incomingRequest.append(buffer);
+        stream.readRawData(buffer, blockSize);
+        incomingRequest += QByteArray::fromRawData(buffer, blockSize);
         requestSize -= blockSize;
         blockSize = 0;
         delete []buffer;
@@ -158,18 +163,15 @@ void ThousandGameServer::addRequestQuery() {
             emit (moveListChanged());
         }
         if (requestQuery.size != -1)
+            locker.lockForWrite();
             _mManager->setSocketState(socket, WaitForDataTransmission);
+            locker.unlock();
 
     }
 }
 
 void ThousandGameServer::sendToClient(QByteArray &array, QTcpSocket *socket) {
-    QByteArray block;
-    QDataStream stream(&block, QIODevice::WriteOnly);
-    stream<<quint16(0)<<array;
-    stream.device()->seek(0);
-    stream<<quint16(block.size() - sizeof(quint16));
-    socket->write(block);
+    socket->write(array);
 }
 
 void ThousandGameServer::addNewConnection() {
@@ -179,6 +181,7 @@ void ThousandGameServer::addNewConnection() {
     connect(socket, SIGNAL(disconnected()), this, SLOT(deleteLater()));
     connect(socket, SIGNAL(readyRead()), this, SLOT(addRequestQuery()));
     //! TODO: сделать отсылку информации о состоянии сервера
+    socket->write("Connected!");
 }
 
 void ThousandGameServer::slotConnectionAborted() {

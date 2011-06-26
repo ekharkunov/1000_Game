@@ -9,6 +9,7 @@
 #define THOUSANDGAMEQUERYHANDLER_H
 
 #include "abstractqueryhandler.h"
+#include <QMutex>
 
 class ThousandGameServer;
 class ThousandGameDataParser;
@@ -42,13 +43,13 @@ public:
 private:
     //! Указатель на объект игрового сервера, очередь запросов которого необходимо обработать
     ThousandGameServer *server;
-    //! Уrазатель на обработчик данных
+    //! Указатель на обработчик данных
     ThousandGameDataParser *parser;
+    //! Мьютекс для блокировки данных
+    QMutex mutex;
 signals:
     //! Сигнал об изменении списка игроков
     void userListChanged();
-//public slots:
-//    void start(Priority);
 };
 
 #endif // THOUSANDGAMEQUERYHANDLER_H

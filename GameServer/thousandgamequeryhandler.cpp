@@ -2,7 +2,6 @@
 #include "thousandgameserver.h"
 #include "thousandgamedataparser.h"
 #include "connectionmanager.h"
-#include "protocol.h"
 #include <QSqlQuery>
 #include <QSqlError>
 
@@ -30,12 +29,11 @@ void ThousandGameQueryHandler::run() {
         incommingRequest = server->_mRequestQueries.first();
         server->locker.unlock();
         QByteArray inputData, outputData;//входящие и исходящие данные
-        QTcpSocket *socket = 0;
+        QTcpSocket *socket = server->_mManager->findSocket(incommingRequest.socketDescriptor);
+        Q_ASSERT_X(socket, "ThousandGameQueryHandler::run()", "Cannot find socket for reading");
         //! TODO: Предусмотреть обрыв соединения
         if (incommingRequest.size > 0) {
-            socket = server->_mManager->findSocket(incommingRequest.socketDescriptor);
             QDataStream stream(socket);
-            Q_ASSERT_X(socket, "ThousandGameQueryHandler::run()", "Cannot find socket for reading");
             quint16 dataSize = incommingRequest.size;
             quint16 blockSize = 0;
             //считываем данные для работы с запросом
@@ -43,13 +41,13 @@ void ThousandGameQueryHandler::run() {
                 blockSize = socket->bytesAvailable();
                 if (blockSize) {
                     char *buffer = new char[blockSize];
-                    stream.readRawData(buffer, sizeof(buffer));
-                    inputData.append(buffer);
+                    stream.readRawData(buffer, blockSize);
+                    inputData += QByteArray::fromRawData(buffer, blockSize);
                     dataSize -= blockSize;
                     blockSize = 0;
                     delete buffer;
                 }
-                else qDebug()<<"Null block";
+                else { qDebug()<<"Null block"; return;}
             }
         }
         QueryType type = incommingRequest.type;
@@ -73,9 +71,9 @@ void ThousandGameQueryHandler::run() {
                     strQuery = "INSERT INTO UserInformation "
                             "(Nickname, Password, RealName, TotalNumberOfGames, Wins, Loses)"
                             "VALUES('%1', '%2', '%3', 0, 0, 0);";
-                    strQuery.arg(regInfo.nickName)
-                            .arg(regInfo.password)
-                            .arg(regInfo.realName);
+                    strQuery = strQuery.arg(regInfo.nickName)
+                                       .arg(regInfo.password)
+                                       .arg(regInfo.realName);
                     query.prepare(strQuery);
                     query.exec();
                     if (!query.isActive()) messageArray.append(query.lastError().text());
@@ -98,7 +96,7 @@ void ThousandGameQueryHandler::run() {
                 //проверка на наличие указанного пользователя
                 QString strQuery = "SELECT Nickname, Password FROM UserInformation "
                         "WHERE Nickname = '%1';";
-                strQuery.arg(authInfo.login);
+                strQuery = strQuery.arg(authInfo.login);
                 query.prepare(strQuery);
                 query.exec();
                 if (!query.isValid())
@@ -126,7 +124,8 @@ void ThousandGameQueryHandler::run() {
         case NEWGAME : {
             UserDescription user = server->_mManager->getUserDescription(socket->socketDescriptor());
             GameSettings settings = parser->inNewGame(inputData);
-            server->createNewGame(user, settings);
+            bool success = server->createNewGame(user, settings);
+            if (success) ;
             break;
         }
         case CONNECTGAME : {
@@ -144,10 +143,14 @@ void ThousandGameQueryHandler::run() {
         case FINISHGAME : {
             break;
         }
-        case LISTALLGAME : {
+        case LISTALLCURRENTGAME : {
+            //            outputData = parser->outListAllCurrentGame(server->listCurrentGame);
+            outcommingRequest.type = LISTALLCURRENTGAME;
             break;
         }
         case LISTALLNEWGAME : {
+            outputData = parser->outListAllNewGame(server->listNewGame);
+            outcommingRequest.type = LISTALLNEWGAME;
             break;
         }
         //===============================================================================================
@@ -180,7 +183,7 @@ void ThousandGameQueryHandler::run() {
             if (db.isValid()) {
                 QSqlQuery query(db);
                 QString strQuery = "SELECT * FROM UserInformation WHERE Nickname = '%1';";
-                strQuery.arg(nickName);
+                strQuery = strQuery.arg(nickName);
                 query.prepare(strQuery);
                 query.exec();
                 PlayerInformation info = PlayerInformation();
@@ -203,15 +206,18 @@ void ThousandGameQueryHandler::run() {
 
         }
         outcommingRequest.socketDescriptor = incommingRequest.socketDescriptor;
-        outcommingRequest.size = sizeof(outputData);
+        outcommingRequest.size = outputData.size();
         //отправка ответного запроса клиенту
         QByteArray byteRequest;
-        byteRequest<<outcommingRequest;
+        QDataStream output(&byteRequest, QIODevice::WriteOnly);
+        output<<outcommingRequest;
+        mutex.lock();
         server->_mManager->setSocketState(socket, WaitForQueryTransmission);
         server->sendToClient(byteRequest, socket);
         server->_mManager->setSocketState(socket, WaitForDataTransmission);
         server->sendToClient(outputData, socket);
         server->_mManager->setSocketState(socket, WaitForQueryTransmission);
+        mutex.unlock();
         //удаляем обработанный запрос из очереди
         server->locker.lockForWrite();
         server->_mRequestQueries.removeFirst();

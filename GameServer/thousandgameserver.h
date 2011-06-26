@@ -37,11 +37,12 @@ public:
 
     /**
     * @brief Стандартный конструктор
+    * @param name Имя игрового сервера
     * @param port Порт, который будет прослушивать сервер
     * @param parent Указатель на родительский объект
     * @sa Config::portsForGameServers
     */
-    explicit ThousandGameServer(int port, QObject *parent = 0);
+    explicit ThousandGameServer(QString name, int port, QObject *parent = 0);
 
     /**
     * @brief Стандартный деструктор
@@ -84,24 +85,30 @@ public:
 
     /**
     * @brief Получение текущего состояния сервера
-    * @return состояние сервера
+    * @return Состояние сервера
     * @sa AbstractGameServer::States
     */
     AbstractGameServer::States serverState() const;
 
     /**
+    * @brief Возвращает имя сервера
+    * @return Имя сервера
+    */
+    QString serverName() const;
+
+    /**
     * @brief Создает новую игру
     * @param creater    Информация о пользователе, который создает игру
-    * @param setting    Настройки игры
+    * @param settings   Настройки игры
     * @return Успешность создания
     */
     bool createNewGame(UserDescription creater, GameSettings settings);
 
     /**
-    * @brief
-    * @param gameID
-    * @param user
-    * @return
+    * @brief Обеспечивает подключение игрока к указанной игре
+    * @param gameID ID игры
+    * @param user   Информация о пользователе
+    * @return Успешность операции
     */
     bool connectToGame(quint16 gameID, UserDescription user);
 private:
@@ -115,6 +122,9 @@ private:
 
     //! Объект класса ThousandGameServer
     static ThousandGameServer* _mInstance;
+
+    //! Имя сервера
+    QString _mName;
 
     //! Номер порта, на котором осуществляется работа сервера
     int _mPort;

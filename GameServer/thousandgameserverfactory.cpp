@@ -5,7 +5,8 @@
 */
 
 #include "thousandgameserverfactory.h"
+#include "thousandgameserver.h"
 
-void ThousandGameServerFactory::createServerInstance() {
-
+AbstractGameServer* ThousandGameServerFactory::createServerInstance() {
+    return ThousandGameServer::getInstance();
 }

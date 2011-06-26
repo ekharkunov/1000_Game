@@ -13,7 +13,6 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
     mainserver.cpp \
     abstractgameserver.cpp \
     gameserverfactory.cpp \
@@ -28,7 +27,7 @@ SOURCES += main.cpp\
     thousandgamedataparser.cpp \
     config.cpp
 
-HEADERS  += mainwindow.h \
+HEADERS  += \
     mainserver.h \
     abstractgameserver.h \
     config.h \
