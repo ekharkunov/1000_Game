@@ -21,10 +21,13 @@ RegistrationData ThousandGameDataParser::inRegistration(const QByteArray &data) 
 
 QByteArray ThousandGameDataParser::outRegistration(QVector<QString> &information) {
     QByteArray array;
-    array.append(information.size());
+    QDataStream writer(&array, QIODevice::WriteOnly);
+    writer<<information.size();
     QVector<QString>::iterator it = information.begin();
-    for (; it != information.end(); ++it)
-        array.append(*it);
+    for (; it != information.end(); ++it) {
+        writer<<(*it).size();
+        writer<<*it;
+    }
     return array;
 }
 
@@ -37,10 +40,13 @@ AuthorizationData ThousandGameDataParser::inAuthorization(const QByteArray &data
 
 QByteArray ThousandGameDataParser::outAuthorization(QVector<QString> &information) {
     QByteArray array;
-    array.append(information.size());
+    QDataStream writer(&array, QIODevice::WriteOnly);
+    writer<<information.size();
     QVector<QString>::iterator it = information.begin();
-    for (; it != information.end(); ++it)
-        array.append(*it);
+    for (; it != information.end(); ++it) {
+        writer<<(*it).size();
+        writer<<*it;
+    }
     return array;
 }
 
