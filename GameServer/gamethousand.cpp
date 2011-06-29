@@ -39,7 +39,12 @@ QList<UserDescription>& GameThousand::players() {
 }
 
 void GameThousand::run() {
+    bool winnerExist = false;
+    while (!winnerExist) {
+    //перемешиваем колоду
+        shuffle();
 
+    }
 }
 
 void GameThousand::shuffle() {
@@ -49,5 +54,28 @@ void GameThousand::shuffle() {
 }
 
 void GameThousand::calculatePoints() {
+    QMap<quint16, CardPack>::iterator it = mapPlayer2Trick.begin();
+    for (; it != mapPlayer2Trick.end(); ++it) {
+        CardPack vector = it.value();
+        int sum = 0;
+        QVector<qint8> playerScore = score.value(it.key());
+        if (1) {//что-то связанное с торгами за прикуп
+        for (int i = 0; i < vector.size(); i++)
+            sum += vector.at(i).second;
+        }
+        else {
+
+        }
+        if (!playerScore.isEmpty()) sum += playerScore.last();
+        playerScore.append(sum);
+    }
+}
+
+void GameThousand::distribute() {
+
+}
+
+
+void GameThousand::moveCycle() {
 
 }

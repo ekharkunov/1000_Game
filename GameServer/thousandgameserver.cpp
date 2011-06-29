@@ -40,6 +40,7 @@ ThousandGameServer::ThousandGameServer(QString name, int port, QObject *parent) 
     connect(this, SIGNAL(connectionAborted(QTcpSocket*)), _mManager, SLOT(removeConnection(QTcpSocket*)));
     requestHandler = new ThousandGameQueryHandler(this);
     connect(this, SIGNAL(queryListChanged()), requestHandler, SLOT(start())/*, Qt::DirectConnection*/);
+    packInit();//инициализируем колоду карт
 }
 
 ThousandGameServer::~ThousandGameServer() {
@@ -63,7 +64,7 @@ QDateTime ThousandGameServer::startTime() const {
 
 quint64 ThousandGameServer::runningTime() const {
     if (_mTimer)
-    return _mTimer->elapsed();
+        return _mTimer->elapsed();
     else return 0;
 }
 
@@ -180,12 +181,12 @@ void ThousandGameServer::addRequestQuery() {
             emit (moveListChanged());
             break;
         }
-        case MESSAGE : {
-            // принимаем сообщение
+        case MESSAGE : {// принимаем сообщение
             QString message = "";
             QByteArray incomingMessage;
             blockSize = 0;
-            while (requestQuery.size) {
+            requestSize = requestQuery.size;
+            while (requestSize) {
                 blockSize = socket->bytesAvailable();
                 if (blockSize > requestQuery.size) blockSize = requestQuery.size;
                 if (!blockSize) {
@@ -200,6 +201,9 @@ void ThousandGameServer::addRequestQuery() {
                 delete []buffer;
             }
             QDataStream reader(&incomingMessage, QIODevice::ReadOnly);
+            quint32 strSize = 0;
+            reader>>strSize;
+            message.resize(strSize);
             reader>>message;
             //дописываем время отправки и Ник пользователя
             QDateTime sendingTime = QDateTime::currentDateTime();
@@ -207,6 +211,7 @@ void ThousandGameServer::addRequestQuery() {
             QString resultMessage = "[" + sendingTime.time().toString("hh:mm") + "] " + userNick + "->" + message;
             QByteArray outcomingMessage;
             QDataStream writer(&outcomingMessage, QIODevice::WriteOnly);
+            writer<<resultMessage.size();
             writer<<resultMessage;
             //отсылка всем подключенным пользователям
             QMutex mutex;
@@ -218,13 +223,14 @@ void ThousandGameServer::addRequestQuery() {
                 requestQuery.socketDescriptor = socket->socketDescriptor();
                 QByteArray outcomingRequest;
                 QDataStream outStream(&outcomingRequest, QIODevice::WriteOnly);
+                requestQuery.size = outcomingMessage.size();
                 outStream<<requestQuery;
                 userSocket->write(outcomingRequest);
                 _mManager->setSocketState(socket, WaitForDataTransmission);
                 userSocket->write(outcomingMessage);
             }
             mutex.unlock();
-        break;
+            break;
         }
         default : {
             locker.lockForWrite();
@@ -234,13 +240,13 @@ void ThousandGameServer::addRequestQuery() {
 
         }
         }
-        if (requestQuery.size != -1 && requestQuery.type != MESSAGE)
+        if (requestQuery.size != -1 && requestQuery.type != MESSAGE) {
             locker.lockForWrite();
             _mManager->setSocketState(socket, WaitForDataTransmission);
             locker.unlock();
+        }
     }
 }
-
 void ThousandGameServer::sendToClient(QByteArray &array, QTcpSocket *socket) {
     socket->write(array);
 }
@@ -250,11 +256,10 @@ void ThousandGameServer::addNewConnection() {
     if(!socket) return;
     _mManager->addConnection(socket);
     connect(socket, SIGNAL(disconnected()), this, SLOT(slotConnectionAborted()));
-    connect(socket, SIGNAL(disconnected()), this, SLOT(deleteLater()));
+    connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
     connect(socket, SIGNAL(readyRead()), this, SLOT(addRequestQuery()));
     //! TODO: сделать отсылку информации о состоянии сервера
     emit(newServerMessage("New client connected"));
-    socket->write("Connected!");
 }
 
 void ThousandGameServer::slotConnectionAborted() {

@@ -162,7 +162,7 @@ void ThousandGameQueryHandler::run() {
             break;
         }
         case LISTALLCURRENTGAME : {
-            //            outputData = parser->outListAllCurrentGame(server->listCurrentGame);
+            outputData = parser->outListAllCurrentGame(server->listCurrentGame);
             outcommingRequest.type = LISTALLCURRENTGAME;
             break;
         }
@@ -176,17 +176,17 @@ void ThousandGameQueryHandler::run() {
             QSqlDatabase db = server->mapName2Database.value("1000_UserInformation.sqlite");
             if (db.isValid()) {
                 QSqlQuery query(db);
-                query.prepare("SELECT * FROM UserInformation;");
+                query.prepare("SELECT ID, Nickname, RealName, TotalNumberOfGames, Wins, Loses FROM UserInformation;");
                 query.exec();
                 PlayerInformation info;
                 QVector<PlayerInformation> infoVector;
                 while (query.next()) {
                     info.ID = query.value(0).toUInt();
                     info.Nickname = query.value(1).toString();
-                    info.RealName = query.value(3).toString();
-                    info.totalNumber = query.value(4).toUInt();
-                    info.wins = query.value(5).toUInt();
-                    info.loses = query.value(6).toUInt();
+                    info.RealName = query.value(2).toString();
+                    info.totalNumber = query.value(3).toUInt();
+                    info.wins = query.value(4).toUInt();
+                    info.loses = query.value(5).toUInt();
                     infoVector.append(info);
                 }
                 query.finish();
@@ -201,7 +201,7 @@ void ThousandGameQueryHandler::run() {
             QSqlDatabase db = server->mapName2Database.value("1000_UserInformation.sqlite");
             if (db.isValid()) {
                 QSqlQuery query(db);
-                QString strQuery = "SELECT * FROM UserInformation WHERE Nickname = '%1';";
+                QString strQuery = "SELECT ID, Nickname, RealName, TotalNumberOfGames, Wins, Loses FROM UserInformation WHERE Nickname = '%1';";
                 strQuery = strQuery.arg(nickName);
                 query.prepare(strQuery);
                 query.exec();

@@ -103,12 +103,22 @@ private:
     QList<UserDescription> _mPlayerList;
     //! —писок карт, которые на руках в данный момент у игроков(ID игрока, набор карт)
     QMap< quint16, CardPack > mapPlayer2CardSet;
+
+    //! —писок вз€ток, которые получает каждый из игроков в течении раздачи(ID игрока, набор карт)
+    QMap< quint16, CardPack > mapPlayer2Trick;
+
     //! —чет(ID игрока, его динамика счета)
     QMap< quint16, QVector<qint8> > score;
     //! “екущие очки каждого из игроков(ID игрока, очки)
-    QMap< quint16, quint8 > currentPoints;
+    QMap< quint16, qint8 > currentPoints;
     //! “екуща€ колода(перемешенна€)
     CardPack currentPack;
+
+    //! –аздача карт по игрокам и по прикупам
+    void distribute();
+
+    //! ќбработка одного цикла ходов
+    void moveCycle();
 signals:
 
 public slots:
