@@ -2,7 +2,7 @@
 * @file gamethousand.h
 * @author Kharkunov Eugene
 * @date 4.06.2011
-* @brief
+* @brief Содержит описание класса, реализующего игру "Тысяча"
 */
 
 #ifndef GAMETHOUSAND_H
@@ -45,24 +45,26 @@ public:
     bool addPlayer(UserDescription user);
 
     /**
-    * @brief Получает ID игры
+    * @brief Возвращает ID игры
     * @return ID игры(потока)
     */
     quint16 gameID() const;
 
     /**
-    *
+    * @brief Возвращает время, которое отводится игроку для совершения хода
+    * @return Время в секундах. Имеет дискретный ограниченный набор значений
     */
     quint16 timeout() const;
 
     /**
-    *
+    * @brief Возвращает количество игроков, на которое расчитана данная игра.
+    * @return Число игроков. Может принимать значения от 2 до 4
     */
     quint8 playerNumber() const;
 
     /**
-    * @brief
-    * @return
+    * @brief Возвращает список участников данной игры
+    * @return Список участников
     */
     QList<UserDescription>& players();
 

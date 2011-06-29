@@ -2,6 +2,7 @@
 * @file gameserverfactory.h
 * @author Kharkunov Eugene
 * @date 2.06.2011
+* @brief —одержит описание базового класса фабрики игрового сервера
 */
 
 #ifndef GAMESERVERFACTORY_H
@@ -45,7 +46,7 @@ public:
     static void unregisterFactory(QString name);
 
     /**
-    * @brief ”дал€ет все зарешистрированные фабрики
+    * @brief ”дал€ет все зарегистрированные фабрики
     */
     static void unregisterAllFactories();
 
@@ -62,6 +63,8 @@ public:
 private:
     //! ћассив зарегистрированных фабрик
     static QMap<QString, GameServerFactory*> factories;
+
+    //! —писок активных серверов
     static QList<AbstractGameServer*> servers;
 signals:
 

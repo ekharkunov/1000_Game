@@ -7,6 +7,7 @@
 #ifndef THOUSANDGAMESERVER_H
 #define THOUSANDGAMESERVER_H
 
+#include <QDateTime>
 #include <QSqlDatabase>
 #include <QReadWriteLock>
 #include "abstractgameserver.h"
@@ -74,12 +75,14 @@ public:
     bool initDatabases();
 
     /**
-    * @brief чnо-то там
+    * @brief Закрывает и удаляет все установленные соединения с базами данных
     */
     void disconnectDatabases();
 
     /**
-    *
+    * @brief Отсылает информацию клиенту
+    * @param array  Данные, которые необходимо отослать
+    * @param socket Указатель на сокет, посредством которого установлено соединение с клиентом
     */
     void sendToClient(QByteArray &array, QTcpSocket *socket);
 
@@ -97,6 +100,18 @@ public:
     QString serverName() const;
 
     /**
+    * @brief Возвращает время начало работы сервера
+    * @return Денб и время запуска сервера
+    */
+    QDateTime startTime() const;
+
+    /**
+    * @brief Время работы сервера
+    * @return Время в милисекундах, прошедшее с начала работы сервера
+    */
+    quint64 runningTime() const;
+
+    /**
     * @brief Создает новую игру
     * @param creater    Информация о пользователе, который создает игру
     * @param settings   Настройки игры
@@ -111,6 +126,14 @@ public:
     * @return Успешность операции
     */
     bool connectToGame(quint16 gameID, UserDescription user);
+
+    /**
+    * @brief Установка нового значения для прослушки сервером
+    * @param port Новое значение порта
+    * @note Для того, чтобы изменения вступили в силу, необходим перезапуск сервера
+    */
+    void setServerPort(quint16 port);
+
 private:
     /**
     * @brief Поиск игры с указанным @p ID
@@ -131,6 +154,12 @@ private:
 
     //! Текущее состояние сервера
     AbstractGameServer::States state;
+
+    //! Время старта сервера
+    QDateTime _mTimeStart;
+
+    //! Счетчик работы сервера
+    QTime *_mTimer;
 
     //! Менеждер соединений
     ConnectionManager* _mManager;

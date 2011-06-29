@@ -54,6 +54,10 @@ void HttpServer::addNewConnection() {
     newSocket->write(st);
 }
 
+void HttpServer::stopServer() {
+
+}
+
 void HttpServer::readClientInformation() {
 
 }

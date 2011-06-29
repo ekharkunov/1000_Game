@@ -2,7 +2,7 @@
 * @file abstractqueryhandler.h
 * @author Kharkunov Eugene
 * @date 6.06.2011
-* @brief
+* @brief Содержит описание интерфейсного класса для обработчика запросов
 */
 
 #ifndef ABSTRACTQUERYHANDLER_H
@@ -18,11 +18,19 @@ class AbstractQueryHandler : public QThread
 {
     Q_OBJECT
 public:
+    /**
+    * @brief Стандартный конструктор
+    * @param parent Указатель на родительский объект
+    */
     explicit AbstractQueryHandler(QObject *parent = 0);
+
+    //! Стандартный деструктор
     virtual ~AbstractQueryHandler();
 
     /**
     * @brief Содержит код, который необходимо выполнить при запуске потока
+    *
+    * Необходимо реализовать в наследуемых классах
     */
     virtual void run() = 0;
 signals:

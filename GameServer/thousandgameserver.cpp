@@ -11,7 +11,6 @@
 #include "gamethousand.h"
 #include <QMessageBox>
 #include <QSqlError>
-#include <QSqlQuery>
 #include <QDataStream>
 #include <QFile>
 
@@ -30,7 +29,9 @@ ThousandGameServer::ThousandGameServer(QString name, int port, QObject *parent) 
     AbstractGameServer(name, port, parent),
     _mName(name),
     _mPort(port),
-    state(AbstractGameServer::NotRunning)
+    state(AbstractGameServer::NotRunning),
+    _mTimeStart(),
+    _mTimer(0)
 {
     //Дописывать все необхоимые для сервера названия БД
     //! TODO: Сделать регистрацию БД через внешний файл
@@ -44,6 +45,8 @@ ThousandGameServer::ThousandGameServer(QString name, int port, QObject *parent) 
 ThousandGameServer::~ThousandGameServer() {
     delete _mManager;
     delete requestHandler;
+    delete _mTimer;
+    databaseNames.clear();
 }
 
 AbstractGameServer::States ThousandGameServer::serverState() const {
@@ -52,6 +55,16 @@ AbstractGameServer::States ThousandGameServer::serverState() const {
 
 QString ThousandGameServer::serverName() const {
     return _mName;
+}
+
+QDateTime ThousandGameServer::startTime() const {
+    return _mTimeStart;
+}
+
+quint64 ThousandGameServer::runningTime() const {
+    if (_mTimer)
+    return _mTimer->elapsed();
+    else return 0;
 }
 
 bool ThousandGameServer::startServer() {
@@ -73,11 +86,21 @@ bool ThousandGameServer::startServer() {
     }
     connect(this, SIGNAL(newConnection()), this, SLOT(addNewConnection()));
     state = AbstractGameServer::Running;
+    _mTimeStart = QDateTime::currentDateTime();
+    _mTimer = new QTime();
+    _mTimer->start();
+    emit(stateChanged());
     return true;
 }
 
 void ThousandGameServer::stopServer() {
-
+    disconnectDatabases();
+    _mManager->closeAllConnections();
+    state = AbstractGameServer::NotRunning;
+    emit(stateChanged());
+    delete _mTimer;
+    _mTimer = 0;
+    close();
 }
 
 bool ThousandGameServer::initDatabases() {
@@ -107,7 +130,7 @@ bool ThousandGameServer::initDatabases() {
             }
         }
     }
-    qDebug()<<"database OK!";
+    emit(newServerMessage("Database OK!"));
     return true;
 }
 
@@ -115,9 +138,9 @@ void ThousandGameServer::disconnectDatabases() {
     QMap<QString, QSqlDatabase>::iterator it = mapName2Database.begin();
     for (; it != mapName2Database.end(); ++it) {
         it.value().close();
+        QSqlDatabase::removeDatabase(it.key());
     }
     mapName2Database.clear();
-    databaseNames.clear();
 }
 
 void ThousandGameServer::addRequestQuery() {
@@ -133,7 +156,7 @@ void ThousandGameServer::addRequestQuery() {
         blockSize = socket->bytesAvailable();
         if (blockSize > requestSize) blockSize = requestSize;
         if (!blockSize) {
-            qDebug()<<"Invalid size of query";
+            emit(newServerMessage(tr("Invalid size of query")));
             break;
         }
         char *buffer = new char[blockSize];
@@ -176,11 +199,13 @@ void ThousandGameServer::sendToClient(QByteArray &array, QTcpSocket *socket) {
 
 void ThousandGameServer::addNewConnection() {
     QTcpSocket *socket = nextPendingConnection();
+    if(!socket) return;
     _mManager->addConnection(socket);
     connect(socket, SIGNAL(disconnected()), this, SLOT(slotConnectionAborted()));
     connect(socket, SIGNAL(disconnected()), this, SLOT(deleteLater()));
     connect(socket, SIGNAL(readyRead()), this, SLOT(addRequestQuery()));
     //! TODO: сделать отсылку информации о состоянии сервера
+    emit(newServerMessage("New client connected"));
     socket->write("Connected!");
 }
 
@@ -210,4 +235,8 @@ bool ThousandGameServer::connectToGame(quint16 gameID, UserDescription user) {
     if (game)
         return game->addPlayer(user);
     else return false;
+}
+
+void ThousandGameServer::setServerPort(quint16 port) {
+    _mPort = port;
 }

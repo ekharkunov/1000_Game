@@ -21,6 +21,7 @@ RegistrationData ThousandGameDataParser::inRegistration(const QByteArray &data) 
 
 QByteArray ThousandGameDataParser::outRegistration(QVector<QString> &information) {
     QByteArray array;
+    array.append(information.size());
     QVector<QString>::iterator it = information.begin();
     for (; it != information.end(); ++it)
         array.append(*it);
@@ -36,6 +37,7 @@ AuthorizationData ThousandGameDataParser::inAuthorization(const QByteArray &data
 
 QByteArray ThousandGameDataParser::outAuthorization(QVector<QString> &information) {
     QByteArray array;
+    array.append(information.size());
     QVector<QString>::iterator it = information.begin();
     for (; it != information.end(); ++it)
         array.append(*it);
@@ -71,7 +73,6 @@ GameSettings ThousandGameDataParser::inNewGame(const QByteArray &data) {
     stream>>settings;
     return settings;
 }
-
 
 QByteArray ThousandGameDataParser::outListAllNewGame(QList<GameThousand *> &list) {
     QByteArray arr;

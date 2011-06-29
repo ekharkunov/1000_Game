@@ -2,6 +2,7 @@
 * @file thousandgameserverfactory.h
 * @author Kharkunov Eugene
 * @date 2.06.2011
+* @brief Содержит описание фабрики для игрового сервера "Тысяча"
 */
 
 #ifndef THOUSANDGAMESERVERFACTORY_H
@@ -13,13 +14,15 @@ class GameServerFactory;
 
 /**
 * @class ThousandGameServerFactory
-* @brief
+* @brief Класс фабрики игрового сервера "Тысяча"
 */
 class ThousandGameServerFactory : public GameServerFactory
 {
 public:
     /**
     * @brief Переопределена от GameServerFactory::createServerInstance
+    *
+    * Создание ссущности сервера
     */
     AbstractGameServer* createServerInstance();
 };

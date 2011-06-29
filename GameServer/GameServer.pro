@@ -11,6 +11,10 @@ QT       += core gui\
 TARGET = GameServer
 TEMPLATE = app
 
+TRANSLATIONS += translations/lang_en_EN.ts \
+                translations/lang_ru_RU.ts
+
+RC_FILE = GameServer.rc
 
 SOURCES += main.cpp\
     mainserver.cpp \
@@ -25,7 +29,8 @@ SOURCES += main.cpp\
     thousandgamequeryhandler.cpp \
     abstractdataparser.cpp \
     thousandgamedataparser.cpp \
-    config.cpp
+    config.cpp \
+    tablemodel.cpp
 
 HEADERS  += \
     mainserver.h \
@@ -43,7 +48,8 @@ HEADERS  += \
     thousandgamequeryhandler.h \
     abstractdataparser.h \
     thousandgamedataparser.h \
-    card.h
+    card.h \
+    tablemodel.h
 
 OTHER_FILES += \
     ProtocolDescription.txt

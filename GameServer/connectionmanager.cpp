@@ -76,14 +76,15 @@ void ConnectionManager::addConnection(QTcpSocket *socket) {
 
 void ConnectionManager::removeConnection(QTcpSocket *socket) {
     Q_ASSERT(socket);
-    qDebug()<<"1234";
+    socket->close();
+//    qDebug()<<"1234";
     int position = -1;
     for (int i = 0; i < userList.size(); i++)
         if (userList.at(i).socket == socket) { position = i; break; }
-    qDebug()<<position;
+//    qDebug()<<position;
     Q_ASSERT(position != -1);
     userList.removeAt(position);
-    qDebug()<<userList.isEmpty();
+//    qDebug()<<userList.isEmpty();
 }
 
 UserDescription ConnectionManager::getUserDescription(quint32 ID) {
@@ -92,4 +93,11 @@ UserDescription ConnectionManager::getUserDescription(quint32 ID) {
         if (userList.at(i).ConnectionID == ID)
             return userList.at(i);
     return sd;
+}
+
+void ConnectionManager::closeAllConnections() {
+    QList<UserDescription>::iterator it= userList.begin();
+    for (; it != userList.end(); ++it)
+        (*it).socket->close();
+    userList.clear();
 }

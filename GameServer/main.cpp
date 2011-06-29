@@ -1,6 +1,15 @@
+/**
+* @file main.cpp
+* @author Kharkunov Eugene
+* @date 2.06.2011
+* @brief Главный исполняемый файл программы
+*/
+
 #include <QtGui/QApplication>
 #include "mainserver.h"
 #include "config.h"
+#include <QTranslator>
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -18,12 +27,18 @@ int main(int argc, char *argv[])
     Config::pathStyles.cd("style");
     Config::pathDatabases = appDir;
     Config::pathDatabases.cd("Databases");
+    Config::pathLogs = appDir;
+    Config::pathLogs.cd("logs");
+    Config::pathTranslations = appDir;
+    Config::pathTranslations.cd("translations");
     Config::portForHttpServer = 8080;
     Config::portsForGameServers = QMap<QString, int>();
 
+    QTranslator trans;
+    trans.load(Config::pathTranslations.absolutePath() + "/lang_" + QLocale::system().name());
+    a.installTranslator(&trans);
+
     MainServer *server = MainServer::getInstance();
-    server->showMaximized();
-//    ThousandGameServer *ser = ThousandGameServer::getInstance();
-//    ser->startServer();
+    server->show();
     return a.exec();
 }

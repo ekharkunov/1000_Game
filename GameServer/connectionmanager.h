@@ -147,6 +147,11 @@ public slots:
     * @note Слот соединяется с сигналом QAbstractSocket::disconnected()
     */
     void removeConnection(QTcpSocket *socket);
+
+    /**
+    * @brief Закрывает все существующие соединения и очищает список подключенных пользователей
+    */
+    void closeAllConnections();
 private:
     //! Список пользователей, подключенных к серверу
     QList<UserDescription> userList;

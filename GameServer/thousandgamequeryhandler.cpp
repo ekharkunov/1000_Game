@@ -57,29 +57,41 @@ void ThousandGameQueryHandler::run() {
             RegistrationData regInfo = parser->inRegistration(inputData);
             //! TODO: сделать ассоцииации с названием БД через файл
             QSqlDatabase db = server->mapName2Database.value("1000_UserInformation.sqlite");
-            if (!db.isValid())
+            if (!db.isValid()) {
+                emit(server->newServerMessage(tr("Cannot find connetion to database 1000_UserInformation. sqlite\n")));
                 messageArray.append(tr("Cannot find connetion to database 1000_UserInformation.sqlite\n"));
+            }
             else {
                 QSqlQuery query(db);
                 QString strQuery = "SELECT Nickname FROM UserInformation WHERE Nickname = '%1';";
-                strQuery.arg(regInfo.nickName);
+                strQuery = strQuery.arg(regInfo.nickName);
                 query.prepare(strQuery);
                 query.exec();
-                if (query.isValid())
+                query.next();
+                if (query.isValid()) {
+                    emit(server->newServerMessage(tr("The user with the same nickname is already exist!\n")));
                     messageArray.append(tr("The user with the same nickname is already exist!\n"));
+                }
                 else {
                     strQuery = "INSERT INTO UserInformation "
                             "(Nickname, Password, RealName, TotalNumberOfGames, Wins, Loses)"
                             "VALUES('%1', '%2', '%3', 0, 0, 0);";
                     strQuery = strQuery.arg(regInfo.nickName)
-                                       .arg(regInfo.password)
-                                       .arg(regInfo.realName);
+                            .arg(regInfo.password)
+                            .arg(regInfo.realName);
                     query.prepare(strQuery);
                     query.exec();
-                    if (!query.isActive()) messageArray.append(query.lastError().text());
-                    else messageArray.append(tr("Registration successful!\n"));
-                    query.finish();
+                    if (!query.isActive()) {
+                        emit(server->newServerMessage(query.lastError().text()));
+                        messageArray.append(query.lastError().text());
+                    }
+                    else {
+                        emit(server->newServerMessage(tr("Registration successful!\n")));
+                        messageArray.append(tr("Registration successful!\n"));
+                    }
+
                 }
+                query.finish();
             }
             outputData = parser->outRegistration(messageArray);
             outcommingRequest.type = REGISTER;
@@ -89,8 +101,10 @@ void ThousandGameQueryHandler::run() {
         case AUTHORIZATION : {
             AuthorizationData authInfo = parser->inAuthorization(inputData);
             QSqlDatabase db = server->mapName2Database.value("1000_UserInformation.sqlite");
-            if (!db.isValid())
+            if (!db.isValid()) {
+                emit(server->newServerMessage(tr("Cannot find connetion to database 1000_UserInformation.sqlite\n")));
                 messageArray.append(tr("Cannot find connetion to database 1000_UserInformation.sqlite\n"));
+            }
             else {
                 QSqlQuery query(db);
                 //проверка на наличие указанного пользователя
@@ -99,19 +113,26 @@ void ThousandGameQueryHandler::run() {
                 strQuery = strQuery.arg(authInfo.login);
                 query.prepare(strQuery);
                 query.exec();
-                if (!query.isValid())
+                query.next();
+                if (!query.isValid()) {
+                    emit(server->newServerMessage(tr("Invalid user login\n")));
                     messageArray.append(tr("Invalid user login\n"));
+                }
                 else {//проверяем на совпадение паролей
-                    if (query.value(1).toString() != authInfo.password)
+                    if (query.value(1).toString() != authInfo.password) {
+                        emit(server->newServerMessage(tr("Invalid user password\n")));
                         messageArray.append(tr("Invalid user password\n"));
+                    }
                     else {
                         Q_ASSERT_X(socket, "Authorization query", "Socket pointer is null");
                         server->_mManager->setUserNick(socket, authInfo.login);
                         server->_mManager->setAuthorizationFlag(socket, true);
+                        emit(server->newServerMessage(tr("Authorization successful!\n")));
                         messageArray.append(tr("Authorization successful!\n"));
                         emit(userListChanged());
                     }
                 }
+                query.finish();
             }
             outputData = parser->outAuthorization(messageArray);
             outcommingRequest.type = AUTHORIZATION;
@@ -171,6 +192,7 @@ void ThousandGameQueryHandler::run() {
                     info.loses = query.value(6).toUInt();
                     infoVector.append(info);
                 }
+                query.finish();
                 outputData = parser->outTotalStatistics(infoVector);
                 outcommingRequest.type = TOTALSTATISTICS;
             }
@@ -186,6 +208,7 @@ void ThousandGameQueryHandler::run() {
                 strQuery = strQuery.arg(nickName);
                 query.prepare(strQuery);
                 query.exec();
+                query.next();
                 PlayerInformation info = PlayerInformation();
                 if (query.isValid()) {
                     info.ID = query.value(0).toUInt();
@@ -195,6 +218,7 @@ void ThousandGameQueryHandler::run() {
                     info.wins = query.value(5).toUInt();
                     info.loses = query.value(6).toUInt();
                 }
+                query.finish();
                 outputData = parser->outPlayerStatistics(info);
                 outcommingRequest.type = PLAYERSTATISTICS;
             }

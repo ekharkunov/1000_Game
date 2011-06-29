@@ -2,6 +2,7 @@
 * @file httpserver.h
 * @author Kharkunov Eugene
 * @date 2.06.2011
+* @brief Содержит описание класса, реализующего работу HTTP сервера
 */
 
 #ifndef HTTPSERVER_H

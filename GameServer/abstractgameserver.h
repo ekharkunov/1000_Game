@@ -19,7 +19,7 @@
 class AbstractGameServer : public QTcpServer
 {
     Q_OBJECT
-protected:
+public:
     /**
     * @enum States
     * @brief Перечисление опысывает состояние игрового сервера
@@ -31,7 +31,6 @@ protected:
         NotRunning
     };
 
-public:
     /**
     * @brief Стандартный конструктор
     * @param name Имя игрового сервера
@@ -69,6 +68,18 @@ public:
     virtual QString serverName() const = 0;
 
     /**
+    * @brief Возвращает время начало работы сервера
+    * @return День и время запуска сервера
+    */
+    virtual QDateTime startTime() const = 0;
+
+    /**
+    * @brief Время работы сервера
+    * @return Время в милисекундах, прошедшее с начала работы сервера
+    */
+    virtual quint64 runningTime() const = 0;
+
+    /**
     * @brief Метод для отправки данных клиенту
     * @param array Данные, которые необходимо переслать
     * @param socket Сокет, по средством которого осуществляется связь с клиентом
@@ -86,9 +97,25 @@ public:
     */
     virtual void disconnectDatabases() = 0;
 
+    /**
+    * @brief Установка нового порта для прослушивание сервером
+    * @param port Новое значение порта
+    */
+    virtual void setServerPort(quint16 port) = 0;
+
 signals:
     //! Сигнал высылается, если в очередь запросов был добавлен новый запрос
     void queryListChanged();
+
+    //! Сигнал высылается при изменении состояния сервера
+    void stateChanged();
+
+    /**
+    * @brief Сигнал, который высылается при возникновении на сервере какой-либо ошибки
+    * @param serverName Имя сервера, на котором произошла ошибка
+    * @param errorStr   Сообщение об ошибке
+    */
+    void newServerMessage(QString str);
 
 public slots:
     /**
