@@ -4,13 +4,38 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui\
+             network
 
 TARGET = GameClient_1000
 TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    abstractclient.cpp \
+    abstractdataparser.cpp \
+    thousandclient.cpp \
+    thousandclientdataparser.cpp \
+    gamethousand.cpp \
+    player.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    abstractclient.h \
+    protocol.h \
+    abstractdataparser.h \
+    thousandclient.h \
+    thousandclientdataparser.h \
+    card.h \
+    gamethousand.h \
+    player.h
+
+OTHER_FILES += \
+    ProtocolDescription.txt
+
+
+FORMS += \
+    mainwindow.ui
+
+RESOURCES += \
+    media.qrc
