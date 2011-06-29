@@ -95,6 +95,10 @@ UserDescription ConnectionManager::getUserDescription(quint32 ID) {
     return sd;
 }
 
+QList<UserDescription>& ConnectionManager::getUserList() {
+    return userList;
+}
+
 void ConnectionManager::closeAllConnections() {
     QList<UserDescription>::iterator it= userList.begin();
     for (; it != userList.end(); ++it)

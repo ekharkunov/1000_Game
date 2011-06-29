@@ -171,25 +171,73 @@ void ThousandGameServer::addRequestQuery() {
     if (requestQuery.size != 0) {//в случае запроса, после которого не последует передача данных size == -1
         requestQuery.socketDescriptor = socket->socketDescriptor();
         Q_ASSERT(requestQuery.socketDescriptor != -1);
-        //ставим запрос в очередь обработки
-        if (requestQuery.type != MOVE) {
-            locker.lockForWrite();
-            _mRequestQueries.append(requestQuery);
-            locker.unlock();
-            emit (queryListChanged());//высылаем сигнал об изменении в очереди запросов
-        }
-        //запрос на обработку хода ставим в отдельную очередь
-        else {
+        //ставим запрос в очередь обработки либо сразу его обрабатываем(если это сообщения в чат)
+        switch (requestQuery.type) {
+        case MOVE : {
             locker.lockForWrite();
             _mMoveQueries.append(requestQuery);
             locker.unlock();
             emit (moveListChanged());
+            break;
         }
-        if (requestQuery.size != -1)
+        case MESSAGE : {
+            // принимаем сообщение
+            QString message = "";
+            QByteArray incomingMessage;
+            blockSize = 0;
+            while (requestQuery.size) {
+                blockSize = socket->bytesAvailable();
+                if (blockSize > requestQuery.size) blockSize = requestQuery.size;
+                if (!blockSize) {
+                    emit(newServerMessage(tr("Invalid size of query")));
+                    break;
+                }
+                char *buffer = new char[blockSize];
+                stream.readRawData(buffer, blockSize);
+                incomingMessage += QByteArray::fromRawData(buffer, blockSize);
+                requestSize -= blockSize;
+                blockSize = 0;
+                delete []buffer;
+            }
+            QDataStream reader(&incomingMessage, QIODevice::ReadOnly);
+            reader>>message;
+            //дописываем время отправки и Ник пользователя
+            QDateTime sendingTime = QDateTime::currentDateTime();
+            QString userNick = _mManager->userNick(socket);
+            QString resultMessage = "[" + sendingTime.time().toString("hh:mm") + "] " + userNick + "->" + message;
+            QByteArray outcomingMessage;
+            QDataStream writer(&outcomingMessage, QIODevice::WriteOnly);
+            writer<<resultMessage;
+            //отсылка всем подключенным пользователям
+            QMutex mutex;
+            mutex.lock();
+            QList<UserDescription> list = _mManager->getUserList();
+            for (int i = 0; i < list.size(); i++) {
+                QTcpSocket *userSocket = list.at(i).socket;
+                _mManager->setSocketState(userSocket, WaitForQueryTransmission);
+                requestQuery.socketDescriptor = socket->socketDescriptor();
+                QByteArray outcomingRequest;
+                QDataStream outStream(&outcomingRequest, QIODevice::WriteOnly);
+                outStream<<requestQuery;
+                userSocket->write(outcomingRequest);
+                _mManager->setSocketState(socket, WaitForDataTransmission);
+                userSocket->write(outcomingMessage);
+            }
+            mutex.unlock();
+        break;
+        }
+        default : {
+            locker.lockForWrite();
+            _mRequestQueries.append(requestQuery);
+            locker.unlock();
+            emit (queryListChanged());//высылаем сигнал об изменении в очереди запросов
+
+        }
+        }
+        if (requestQuery.size != -1 && requestQuery.type != MESSAGE)
             locker.lockForWrite();
             _mManager->setSocketState(socket, WaitForDataTransmission);
             locker.unlock();
-
     }
 }
 

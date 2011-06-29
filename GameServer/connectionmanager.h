@@ -132,6 +132,13 @@ public:
     * @return Информация о пользователе
     */
     UserDescription getUserDescription(quint32 ID);
+
+    /**
+    * @brief Получения списка подключенных пользователей
+    * @return Список подключенных пользователей
+    * @sa UserDescription
+    */
+    QList<UserDescription>& getUserList();
 public slots:
     /**
     * @brief Слот для добавления соединения в список существующих соединений

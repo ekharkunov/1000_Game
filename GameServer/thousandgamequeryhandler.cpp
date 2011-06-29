@@ -139,9 +139,6 @@ void ThousandGameQueryHandler::run() {
             break;
         }
         //===============================================================================================
-        case MESSAGE : {
-            break;
-        }
         case NEWGAME : {
             UserDescription user = server->_mManager->getUserDescription(socket->socketDescriptor());
             GameSettings settings = parser->inNewGame(inputData);
