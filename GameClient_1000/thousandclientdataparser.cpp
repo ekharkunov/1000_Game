@@ -100,10 +100,13 @@ void ThousandClientDataParser::inRegistration(QByteArray &data)
 {
     QDataStream in(data);
     QVector<QString> inData;
-    int size;
+    int size,sizeString;
     in>>size;
+    inData.resize(size);
     for(int i=0;i<size;i++)
     {
+        in>>sizeString;
+        inData[i].resize(sizeString);
         in>>inData[i];
     }
     emit(compliteRegistration(inData));
@@ -113,10 +116,13 @@ void ThousandClientDataParser::inAuthorization(QByteArray &data)
 {
     QDataStream in(data);
     QVector<QString> inData;
-    int size;
+    int size,sizeString;
     in>>size;
+    inData.resize(size);
     for(int i=0;i<size;i++)
     {
+        in>>sizeString;
+        inData[i].resize(sizeString);
         in>>inData[i];
     }
     emit(compliteAuthorization(inData));
@@ -194,6 +200,7 @@ void ThousandClientDataParser::inListAllGame(QByteArray &data)
            }
            in>>time;
            GameThousand game(players,number,time);
+           game.setGameId(id);
            gamesList.append(game);
        }
        emit(compliteListAllGame(gamesList));
@@ -238,10 +245,10 @@ void ThousandClientDataParser::outRegistration(const RegistrationData &info)
 
 void ThousandClientDataParser::outAuthorization(const AuthorizationData &info)
 {
-   QByteArray array;
-   QDataStream out(array);
+    QByteArray array;
+    QDataStream out(&array, QIODevice::WriteOnly);
     out<<info;
-   workClient->sendToServer(array,AUTHORIZATION);
+    workClient->sendToServer(array,AUTHORIZATION);
 }
 
 void ThousandClientDataParser::outMessage(const QString &message)

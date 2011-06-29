@@ -396,17 +396,14 @@ background-color: #f7f7f4</string>
        <attribute name="title">
         <string>All Games</string>
        </attribute>
-       <widget class="QListView" name="listAllGamesView">
+       <widget class="QListWidget" name="allGamesView">
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>-9</y>
-          <width>211</width>
-          <height>301</height>
+          <y>0</y>
+          <width>201</width>
+          <height>281</height>
          </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(249, 249, 249);</string>
         </property>
        </widget>
       </widget>
@@ -414,23 +411,14 @@ background-color: #f7f7f4</string>
        <attribute name="title">
         <string>New Games</string>
        </attribute>
-       <widget class="QListView" name="listNewGamesView">
+       <widget class="QListWidget" name="allNewGamesView">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>201</width>
-          <height>291</height>
+          <width>191</width>
+          <height>281</height>
          </rect>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>241</width>
-          <height>291</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(255, 255, 255);</string>
         </property>
        </widget>
       </widget>

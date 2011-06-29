@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Wed 29. Jun 22:01:47 2011
+** Created: Thu 30. Jun 02:18:33 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -18,7 +18,7 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
-#include <QtGui/QListView>
+#include <QtGui/QListWidget>
 #include <QtGui/QMainWindow>
 #include <QtGui/QPushButton>
 #include <QtGui/QTabWidget>
@@ -48,9 +48,9 @@ public:
     QWidget *widget;
     QTabWidget *tabWidget;
     QWidget *allGames;
-    QListView *listAllGamesView;
+    QListWidget *allGamesView;
     QWidget *newGames;
-    QListView *listNewGamesView;
+    QListWidget *allNewGamesView;
     QPushButton *startButton;
     QPushButton *createGameButton;
     QPushButton *exitButton;
@@ -250,18 +250,15 @@ public:
         allGames = new QWidget();
         allGames->setObjectName(QString::fromUtf8("allGames"));
         allGames->setStyleSheet(QString::fromUtf8("color: rgba(255, 255, 255, 0)"));
-        listAllGamesView = new QListView(allGames);
-        listAllGamesView->setObjectName(QString::fromUtf8("listAllGamesView"));
-        listAllGamesView->setGeometry(QRect(0, -9, 211, 301));
-        listAllGamesView->setStyleSheet(QString::fromUtf8("background-color: rgb(249, 249, 249);"));
+        allGamesView = new QListWidget(allGames);
+        allGamesView->setObjectName(QString::fromUtf8("allGamesView"));
+        allGamesView->setGeometry(QRect(0, 0, 201, 281));
         tabWidget->addTab(allGames, QString());
         newGames = new QWidget();
         newGames->setObjectName(QString::fromUtf8("newGames"));
-        listNewGamesView = new QListView(newGames);
-        listNewGamesView->setObjectName(QString::fromUtf8("listNewGamesView"));
-        listNewGamesView->setGeometry(QRect(0, 0, 201, 291));
-        listNewGamesView->setMaximumSize(QSize(241, 291));
-        listNewGamesView->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 255, 255);"));
+        allNewGamesView = new QListWidget(newGames);
+        allNewGamesView->setObjectName(QString::fromUtf8("allNewGamesView"));
+        allNewGamesView->setGeometry(QRect(0, 0, 191, 281));
         tabWidget->addTab(newGames, QString());
         startButton = new QPushButton(widget);
         startButton->setObjectName(QString::fromUtf8("startButton"));

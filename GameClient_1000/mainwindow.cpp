@@ -27,11 +27,23 @@ void MainWindow::setupWidgets()
     connect(ui->loginButton,SIGNAL(clicked()),this,SLOT(sendAuthorizationDataToServer()));
     connect(ui->registerButton,SIGNAL(clicked()),this,SLOT(sendRegistrationDataToServer()));
     connect(ui->sendButton,SIGNAL(clicked()),this,SLOT(sendMessageToServer()));
+    connect(ui->startButton,SIGNAL(clicked()),this,SLOT(sendStartGameQuary()));
 
     connect(client,SIGNAL(erorText(QString)),this,SLOT(addMessageInChatView(QString)));
     connect(parser,SIGNAL(compliteMessage(QString)),this,SLOT(addMessageInChatView(QString)));
+    connect(parser,SIGNAL(compliteAuthorization(QVector<QString>)),this,SLOT(getSomeMessagesFromServer(QVector<QString>)));
+    connect(parser,SIGNAL(compliteRegistration(QVector<QString>)),this,SLOT(getSomeMessagesFromServer(QVector<QString>)));
+    connect(parser,SIGNAL(compliteListAllGame(QList<GameThousand>)),this,SLOT(getListOfAllGamesOnServer(QList<GameThousand>)));
+    connect(parser,SIGNAL(compliteListAllNewGame(QList<GameThousand>)),this,SLOT(getListOfAllNewGamesOnServer(QList<GameThousand>)));
+}
+
+
+void MainWindow::sendStartGameQuary()
+{
 
 }
+
+
 
 
 
@@ -54,19 +66,49 @@ void MainWindow::sendRegistrationDataToServer()
     RegistrationData info;
     info.nickName = ui->loginLineEdit->text();
     info.password = ui->passwordLineEdit->text();
-    info.realName = "sergei";
+    info.realName = "user";
 }
 
+void MainWindow::getListOfAllNewGamesOnServer(QList<GameThousand> gameslist)
+{
+    for(int i=0;i<gameslist.size();i++)
+    {
+       quint16 gameID = gameslist.at(i).gameID();
+       quint8 numberOfPlayers = gameslist.at(i).playerNumber();
+       QString textDescription("New game %1:,%2");
+       textDescription = textDescription.arg(gameID).arg(numberOfPlayers);
+       QListWidgetItem item(textDescription,ui->allNewGamesView);
+       ui->allGamesView->insertItem(i,&item);
+    }
+}
+
+void MainWindow::getListOfAllGamesOnServer(QList<GameThousand> gameslist)
+{
+    for(int i=0;i<gameslist.size();i++)
+    {
+       quint16 gameID = gameslist.at(i).gameID();
+       quint8 numberOfPlayers = gameslist.at(i).playerNumber();
+       QString textDescription("Game %1:,%2");
+       textDescription = textDescription.arg(gameID).arg(numberOfPlayers);
+       QListWidgetItem item(textDescription,ui->allGamesView);
+       ui->allGamesView->insertItem(i,&item);
+    }
+}
+
+
+void MainWindow::getSomeMessagesFromServer(QVector<QString> data)
+{
+    for(int i=0;i<data.size();i++)
+         ui->chatView->append(data.at(i));
+}
 void MainWindow::sendMoveToServer()
 {
 
 }
-
 void MainWindow::addMessageInChatView(QString message)
 {
       ui->chatView->append(message);
 }
-
 void MainWindow::changeEvent(QEvent *e)
 {
     QMainWindow::changeEvent(e);

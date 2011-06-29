@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "ui_mainwindow.h"
 #include "thousandclient.h"
+#include <QListWidgetItem>
 
 namespace Ui {
     class MainWindow;
@@ -33,9 +34,14 @@ public slots:
     void sendRegistrationDataToServer();
     void sendAuthorizationDataToServer();
     void sendMoveToServer();
+    void sendStartGameQuary();
 
     void addMessageInChatView(QString);
     void getSomeMessagesFromServer(QVector<QString>);
+
+    void getListOfAllGamesOnServer(QList<GameThousand>);
+    void getListOfAllNewGamesOnServer(QList<GameThousand>);
+
 };
 
 
