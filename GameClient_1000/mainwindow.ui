@@ -1,0 +1,589 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>981</width>
+    <height>747</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true">QWidget {
+	    border: 1px solid #000000;
+	    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+	                                   stop: 0 #95581f, 
+	                                   stop: 0.5 #b38522, stop: 1 #3a1c00);
+	    color: #FFFFFF;
+	    font: bold 14px;
+	    min-width: 80px;
+                       	}
+QLineEdit
+{
+   background-color: rgba(255, 255, 255, 0);  
+}
+
+QLabel
+{
+    border: 0px;
+    background-color: #dedede
+}
+</string>
+   </property>
+   <widget class="QWidget" name="chatWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>221</width>
+      <height>431</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
+    <property name="acceptDrops">
+     <bool>true</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <widget class="QTextEdit" name="chatView">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>201</width>
+       <height>301</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #f7f7f4;
+color: rgb(0, 0, 0);
+   </string>
+     </property>
+     <property name="readOnly">
+      <bool>false</bool>
+     </property>
+     <property name="html">
+      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-weight:600; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="messageLineEdit">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>350</y>
+       <width>201</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>-1</pointsize>
+       <weight>75</weight>
+       <italic>false</italic>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #f7f7f4;
+color: rgb(0, 0, 0);
+</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>10</y>
+       <width>161</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgba(255, 255, 255, 0);
+color: rgb(0, 0, 0);
+font: 18pt &quot;Cooper Black&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Chat:</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="sendButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>390</y>
+       <width>201</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+	    border: 1px solid #000000;
+        border-radius: 10px;
+	    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+	                                   stop: 0 #95581f, stop: 0.5 #331900, stop: 1 #95581f);
+	    color: #FFFFFF;
+	    font: bold 14px;
+	    min-width: 80px;
+                       	}
+QPushButton:pressed {
+	    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+	                                   stop: 0 #cfcccc, stop: 0.5 #333232,
+	                                   stop: 0.51 #000000, stop: 1 #585c5f);
+	    color: #00CC00;
+	}
+	 
+QPushButton:flat {
+	    border: none;
+	}</string>
+     </property>
+     <property name="text">
+      <string>Send</string>
+     </property>
+    </widget>
+    <zorder>messageLineEdit</zorder>
+    <zorder>label_3</zorder>
+    <zorder>chatView</zorder>
+    <zorder>sendButton</zorder>
+   </widget>
+   <widget class="QWidget" name="listAndLogingWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>740</x>
+      <y>10</y>
+      <width>231</width>
+      <height>731</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>-1</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
+    <property name="acceptDrops">
+     <bool>true</bool>
+    </property>
+    <widget class="QWidget" name="loginWidget" native="true">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>221</width>
+       <height>251</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>80</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgba(255, 255, 255, 0);
+font: 15pt &quot;Cooper Black&quot;;
+color: rgb(0, 0, 0);</string>
+      </property>
+      <property name="text">
+       <string>Login:</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>80</y>
+        <width>106</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgba(255, 255, 255, 0);
+font: 15pt &quot;Cooper Black&quot;;
+color: rgb(0, 0, 0);</string>
+      </property>
+      <property name="text">
+       <string>Password:</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="passwordLineEdit">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>110</y>
+        <width>181</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>11</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 0, 0);
+font: 11pt &quot;MS Shell Dlg 2&quot;;
+background-color: #f7f7f4</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="loginButton">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>160</y>
+        <width>161</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="mouseTracking">
+       <bool>true</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton {
+	    border: 1px solid #000000;
+        border-radius: 10px;
+	    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+	                                   stop: 0 #95581f, stop: 0.5 #331900, stop: 1 #95581f);
+	    color: #FFFFFF;
+	    font: bold 14px;
+	    min-width: 80px;
+                       	}
+QPushButton:pressed {
+	    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+	                                   stop: 0 #cfcccc, stop: 0.5 #333232,
+	                                   stop: 0.51 #000000, stop: 1 #585c5f);
+	    color: #00CC00;
+	}
+	 
+QPushButton:flat {
+	    border: none;
+	}</string>
+      </property>
+      <property name="text">
+       <string>Login</string>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="registerButton">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>200</y>
+        <width>161</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton {
+	    border: 1px solid #000000;
+        border-radius: 10px;
+	    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+	                                   stop: 0 #95581f, stop: 0.5 #331900, stop: 1 #95581f);
+	    color: #FFFFFF;
+	    font: bold 14px;
+	    min-width: 80px;
+                       	}
+QPushButton:pressed {
+	    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+	                                   stop: 0 #cfcccc, stop: 0.5 #333232,
+	                                   stop: 0.51 #000000, stop: 1 #585c5f);
+	    color: #00CC00;
+	}
+	 
+QPushButton:flat {
+	    border: none;
+	}</string>
+      </property>
+      <property name="text">
+       <string>Register</string>
+      </property>
+      <property name="default">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="loginLineEdit">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>40</y>
+        <width>181</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 0, 0);
+font: 11pt &quot;MS Shell Dlg 2&quot;;
+background-color: #f7f7f4</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="widget" native="true">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>270</y>
+       <width>221</width>
+       <height>451</height>
+      </rect>
+     </property>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>201</width>
+        <height>311</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 0, 0);</string>
+      </property>
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="allGames">
+       <property name="styleSheet">
+        <string notr="true">color: rgba(255, 255, 255, 0)</string>
+       </property>
+       <attribute name="title">
+        <string>All Games</string>
+       </attribute>
+       <widget class="QListView" name="listAllGamesView">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>-9</y>
+          <width>211</width>
+          <height>301</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(249, 249, 249);</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="newGames">
+       <attribute name="title">
+        <string>New Games</string>
+       </attribute>
+       <widget class="QListView" name="listNewGamesView">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>201</width>
+          <height>291</height>
+         </rect>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>241</width>
+          <height>291</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(255, 255, 255);</string>
+        </property>
+       </widget>
+      </widget>
+     </widget>
+     <widget class="QPushButton" name="startButton">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>330</y>
+        <width>181</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton {
+	    border: 1px solid #000000;
+        border-radius: 10px;
+	    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+	                                   stop: 0 #95581f, stop: 0.5 #331900, stop: 1 #95581f);
+	    color: #FFFFFF;
+	    font: bold 14px;
+	    min-width: 80px;
+                       	}
+QPushButton:pressed {
+	    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+	                                   stop: 0 #cfcccc, stop: 0.5 #333232,
+	                                   stop: 0.51 #000000, stop: 1 #585c5f);
+	    color: #00CC00;
+	}
+	 
+QPushButton:flat {
+	    border: none;
+	}</string>
+      </property>
+      <property name="text">
+       <string>Start</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="createGameButton">
+      <property name="geometry">
+       <rect>
+        <x>21</x>
+        <y>370</y>
+        <width>181</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton {
+	    border: 1px solid #000000;
+        border-radius: 10px;
+	    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+	                                   stop: 0 #95581f, stop: 0.5 #331900, stop: 1 #95581f);
+	    color: #FFFFFF;
+	    font: bold 14px;
+	    min-width: 80px;
+                       	}
+QPushButton:pressed {
+	    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+	                                   stop: 0 #cfcccc, stop: 0.5 #333232,
+	                                   stop: 0.51 #000000, stop: 1 #585c5f);
+	    color: #00CC00;
+	}
+	 
+QPushButton:flat {
+	    border: none;
+	}</string>
+      </property>
+      <property name="text">
+       <string>Create new game</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="exitButton">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>410</y>
+        <width>181</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton {
+	    border: 1px solid #000000;
+        border-radius: 10px;
+	    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+	                                   stop: 0 #95581f, stop: 0.5 #331900, stop: 1 #95581f);
+	    color: #FFFFFF;
+	    font: bold 14px;
+	    min-width: 80px;
+                       	}
+QPushButton:pressed {
+	    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+	                                   stop: 0 #cfcccc, stop: 0.5 #333232,
+	                                   stop: 0.51 #000000, stop: 1 #585c5f);
+	    color: #00CC00;
+	}
+	 
+QPushButton:flat {
+	    border: none;
+	}</string>
+      </property>
+      <property name="text">
+       <string>Exit</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QGraphicsView" name="graphicsView">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>10</y>
+      <width>491</width>
+      <height>721</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-image: url(:/tabel/table);</string>
+    </property>
+   </widget>
+   <widget class="QTableView" name="statisticsView">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>450</y>
+      <width>221</width>
+      <height>281</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>exitButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>860</x>
+     <y>705</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

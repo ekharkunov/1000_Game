@@ -1,0 +1,32 @@
+<RCC>
+    <qresource prefix="/cards">
+        <file alias="9C">media/cards/9C.png</file>
+        <file alias="9D">media/cards/9D.png</file>
+        <file alias="9H">media/cards/9H.png</file>
+        <file alias="9S">media/cards/9S.png</file>
+        <file alias="10C">media/cards/10C.png</file>
+        <file alias="10D">media/cards/10D.png</file>
+        <file alias="10H">media/cards/10H.png</file>
+        <file alias="10S">media/cards/10S.png</file>
+        <file alias="aC">media/cards/aC.png</file>
+        <file alias="aD">media/cards/aD.png</file>
+        <file alias="aH">media/cards/aH.png</file>
+        <file alias="aS">media/cards/aS.png</file>
+        <file alias="flipside">media/cards/flipside.png</file>
+        <file alias="jC">media/cards/jC.png</file>
+        <file alias="jD">media/cards/jD.png</file>
+        <file alias="jH">media/cards/jH.png</file>
+        <file alias="jS">media/cards/jS.png</file>
+        <file alias="kC">media/cards/kC.png</file>
+        <file alias="kD">media/cards/kD.png</file>
+        <file alias="kH">media/cards/kH.png</file>
+        <file alias="kS">media/cards/kS.png</file>
+        <file alias="qC">media/cards/qC.png</file>
+        <file alias="qD">media/cards/qD.png</file>
+        <file alias="qH">media/cards/qH.png</file>
+        <file alias="qS">media/cards/qS.png</file>
+    </qresource>
+    <qresource prefix="/tabel">
+        <file alias="table">media/table/table.png</file>
+    </qresource>
+</RCC>
