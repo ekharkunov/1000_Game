@@ -190,6 +190,9 @@ private:
 
     //! ћассив ассоциаций соединений с сервером
     QMap<QTcpSocket*, QString> mapConnection2Nick;
+
+    //! —писок данных дл€ отсылки сервером
+//    QList< QPair<QueryStruct, QByteArray&> > dataForSending;
 signals:
     //! —игнал высылаетс€ в случае разрыва соединени€ одним из клиентов
     void connectionAborted(QTcpSocket*);
@@ -209,6 +212,11 @@ public slots:
     * @brief —лот дл€ постановки запроса, который приходит от клиента, в очередь обработки
     */
     void addRequestQuery();
+
+    /**
+    * @brief —лот дл€ высылки данных
+    */
+    void sendData(quint16 descriptor, QByteArray query, QByteArray data);
 };
 
 #endif // THOUSANDGAMESERVER_H

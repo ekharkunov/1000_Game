@@ -232,13 +232,14 @@ void ThousandGameQueryHandler::run() {
         QByteArray byteRequest;
         QDataStream output(&byteRequest, QIODevice::WriteOnly);
         output<<outcommingRequest;
-        mutex.lock();
-        server->_mManager->setSocketState(socket, WaitForQueryTransmission);
-        server->sendToClient(byteRequest, socket);
-        server->_mManager->setSocketState(socket, WaitForDataTransmission);
-        server->sendToClient(outputData, socket);
-        server->_mManager->setSocketState(socket, WaitForQueryTransmission);
-        mutex.unlock();
+        emit(sendingDataChanged(outcommingRequest.socketDescriptor, byteRequest, outputData));
+//        mutex.lock();
+//        server->_mManager->setSocketState(socket, WaitForQueryTransmission);
+//        socket->write(byteRequest);
+//        server->_mManager->setSocketState(socket, WaitForDataTransmission);
+//        socket->write(outputData);
+//        server->_mManager->setSocketState(socket, WaitForQueryTransmission);
+//        mutex.unlock();
         //удаляем обработанный запрос из очереди
         server->locker.lockForWrite();
         server->_mRequestQueries.removeFirst();

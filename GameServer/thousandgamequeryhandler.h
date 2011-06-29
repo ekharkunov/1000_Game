@@ -13,6 +13,7 @@
 
 class ThousandGameServer;
 class ThousandGameDataParser;
+struct QueryStruct;
 
 /**
 * @class ThousandGameQueryHandler
@@ -50,6 +51,9 @@ private:
 signals:
     //! —игнал об изменении списка игроков
     void userListChanged();
+
+    //! —игнал об изменении списка данных, предназначенных дл€ отсылки
+    void sendingDataChanged(quint16, QByteArray, QByteArray);
 };
 
 #endif // THOUSANDGAMEQUERYHANDLER_H
