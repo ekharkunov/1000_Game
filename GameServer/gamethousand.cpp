@@ -8,6 +8,8 @@ GameThousand::GameThousand(UserDescription creater, quint8 number, quint16 time,
     _mTimeout(time)
 {
     _mPlayerList.append(creater);
+
+    winnerExist = false;
 }
 
 GameThousand::~GameThousand() {
@@ -39,12 +41,14 @@ QList<UserDescription>& GameThousand::players() {
 }
 
 void GameThousand::run() {
-    bool winnerExist = false;
+
     while (!winnerExist) {
-    //перемешиваем колоду
+        //перемешиваем колоду
         shuffle();
 
     }
+    //создаем лог игры
+//    createLog();
 }
 
 void GameThousand::shuffle() {
@@ -56,18 +60,54 @@ void GameThousand::shuffle() {
 void GameThousand::calculatePoints() {
     QMap<quint16, CardPack>::iterator it = mapPlayer2Trick.begin();
     for (; it != mapPlayer2Trick.end(); ++it) {
-        CardPack vector = it.value();
         int sum = 0;
-        QVector<qint8> playerScore = score.value(it.key());
-        if (1) {//что-то связанное с торгами за прикуп
+        int tempSum = 0;
+        quint16 currentPlayerID = it.key();
+        // считаем сразу сколько набрал игрок
+        CardPack vector = it.value();
         for (int i = 0; i < vector.size(); i++)
-            sum += vector.at(i).second;
+            tempSum += vector.at(i).second;
+        tempSum += _mPlayerLaud.value(currentPlayerID);
+        QVector<qint16> playerScore = score.value(currentPlayerID);
+        int prevScore = playerScore.isEmpty() ? 0 : playerScore.last();
+        // проверка на факт сидения игрока на бочке
+        if (_mBarrelPlayer.contains(currentPlayerID)) {
+            if (currentPlayerID != _mWidowBringer) {
+                int vecSize = playerScore.size();
+                //если три раза не берет прикуп, то -100
+                sum = (playerScore.at(vecSize - 1) == playerScore.at(vecSize - 2) &&
+                       playerScore.at(vecSize - 2) == playerScore.at(vecSize - 3)) ? -100 : 0;
+            }
+            //случай, когда игрок взял прикуп и объявил конкретное количество очков(случай бочки)
+            else {
+                //минимум 100 очков, поэтому если набрал, то будет победителем
+                if (tempSum >= _mPointOrdered) {
+                    winnerExist = true;
+                    _mWinner = currentPlayerID;
+                    playerScore.append(1000);
+                    continue;
+                }
+                else sum = 0 - tempSum;
+            }
         }
+        //случай без бочки
         else {
-
+            if (currentPlayerID != _mWidowBringer) {
+                int vecSize = playerScore.size();
+                //если три болт, то -100
+                sum = (playerScore.at(vecSize - 1) == playerScore.at(vecSize - 2) &&
+                       playerScore.at(vecSize - 2) == playerScore.at(vecSize - 3)) ? -100 : tempSum;
+            }
+            //случай, когда игрок взял прикуп и объявил конкретное количество очков
+            else {
+                if (tempSum >= _mPointOrdered) sum = _mPointOrdered;
+                else sum = 0 - tempSum;
+            }
         }
-        if (!playerScore.isEmpty()) sum += playerScore.last();
-        playerScore.append(sum);
+            //производим обнуление очков
+            if (_mBarrelPlayer.count(currentPlayerID) && sum == -100)
+                playerScore.append(0);
+            else playerScore.append(prevScore + sum);
     }
 }
 

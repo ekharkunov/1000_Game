@@ -93,14 +93,52 @@ public:
 private:
     //! ID игры
     quint16 _mID;
+
+    //!  оличество прикупов
+    quint8 _mWidowCount;
+
+    //!  оличество карт вкаждом прикупе
+    quint8 _mWidowCardCount;
+
     //! „исло игроков
     quint8 _mPlayerNumber;
-    //! ѕродолжительность хода
-    quint16 _mTimeout;
-    //! ID игрока, который раздает в текущем цикле
-    quint16 currentDealer;
+
     //! —посок подключенных к данной игре участников
     QList<UserDescription> _mPlayerList;
+
+    //! ID игрока, который раздает в текущем цикле
+    quint16 _mCurrentDealer;
+
+    //! ‘лаг, показывающий, пропускает ли текущий розыгрыш игрок, который был раздающим
+    bool _mDealerMissingMove;
+
+    //! ID игрока, который забрал прикуп
+    quint16 _mWidowBringer;
+
+    //!  оличество очков, объ€вленных за прикуп
+    quint8 _mPointOrdered;
+
+    //!  оличество очков, которые игроки получили за хвали в текущей раздаче
+    QMap<quint16, quint8> _mPlayerLaud;
+
+    //! “екуща€ козыра€ масть
+    Suit _mTrumpSuit;
+
+    /**
+    * @brief —писок игроков на бочке. ¬ него добавл€ютс€ подр€д ID, когда игрок достигает 900 очков.
+    *  огда в списке встречаетс€ 3 раза один и тот же ID, то очки игрока обнул€ютс€(3 раза слетел с бочки)
+    */
+    QList<quint16> _mBarrelPlayer;
+
+    //! ѕродолжительность хода
+    quint16 _mTimeout;
+
+    //! ‘лаг наличи€ победител€
+    bool winnerExist;
+
+    //! ѕобедеитель
+    quint16 _mWinner;
+
     //! —писок карт, которые на руках в данный момент у игроков(ID игрока, набор карт)
     QMap< quint16, CardPack > mapPlayer2CardSet;
 
@@ -108,7 +146,7 @@ private:
     QMap< quint16, CardPack > mapPlayer2Trick;
 
     //! —чет(ID игрока, его динамика счета)
-    QMap< quint16, QVector<qint8> > score;
+    QMap< quint16, QVector<qint16> > score;
     //! “екущие очки каждого из игроков(ID игрока, очки)
     QMap< quint16, qint8 > currentPoints;
     //! “екуща€ колода(перемешенна€)

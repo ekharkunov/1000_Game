@@ -13,6 +13,7 @@
 #include <QSqlError>
 #include <QDataStream>
 #include <QFile>
+#include <QMutex>
 
 ThousandGameServer* ThousandGameServer::_mInstance = 0;
 

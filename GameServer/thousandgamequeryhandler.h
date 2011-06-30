@@ -9,7 +9,6 @@
 #define THOUSANDGAMEQUERYHANDLER_H
 
 #include "abstractqueryhandler.h"
-#include <QMutex>
 
 class ThousandGameServer;
 class ThousandGameDataParser;
@@ -46,8 +45,6 @@ private:
     ThousandGameServer *server;
     //! ”казатель на обработчик данных
     ThousandGameDataParser *parser;
-    //! ћьютекс дл€ блокировки данных
-    QMutex mutex;
 signals:
     //! —игнал об изменении списка игроков
     void userListChanged();

@@ -20,7 +20,7 @@ SocketState ConnectionManager::socketState(QTcpSocket *socket) const {
 void ConnectionManager::setSocketState(QTcpSocket *socket, SocketState state) {
     for (int i = 0; i < userList.size(); i++)
         if (userList.at(i).socket == socket) {
-            userList.value(i)._mState = state;
+            userList[i]._mState = state;
             break;
         }
 }
@@ -42,7 +42,7 @@ QString ConnectionManager::userNick(QTcpSocket *socket) const {
 void ConnectionManager::setUserNick(QTcpSocket *socket, QString nickName) {
     for (int i = 0; i < userList.size(); i++)
         if (userList.at(i).socket == socket) {
-            userList.value(i).UserNick = nickName;
+            userList[i].UserNick = nickName;
             break;
         }
 }
@@ -57,7 +57,7 @@ bool ConnectionManager::authorizationFlag(QTcpSocket *socket) const {
 void ConnectionManager::setAuthorizationFlag(QTcpSocket *socket, bool flag) {
     for (int i = 0; i < userList.size(); i++)
         if (userList.at(i).socket == socket) {
-            userList.value(i).isAuthorize = flag;
+            userList[i].isAuthorize = flag;
             break;
         }
 }
