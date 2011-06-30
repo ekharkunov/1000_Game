@@ -238,7 +238,7 @@ void ThousandClientDataParser::inMove(QByteArray &data){}
 void ThousandClientDataParser::outRegistration(const RegistrationData &info)
 {
    QByteArray array;
-   QDataStream out(array);
+   QDataStream out(&array, QIODevice::WriteOnly);
     out<<info;
    workClient->sendToServer(array,REGISTER);
 }
@@ -291,11 +291,11 @@ void ThousandClientDataParser::outCancelGame(const quint16 &gameID)
     workClient->sendToServer(array,CANCELGAME);
 }
 
-void ThousandClientDataParser::outStartGame(const quint16 &gameID)
+void ThousandClientDataParser::outStartGame(const GameSettings &game)
 {
     QByteArray array;
     QDataStream out(array);
-     out<<gameID;
+     out<<game;
     workClient->sendToServer(array,STARTGAME);
 }
 

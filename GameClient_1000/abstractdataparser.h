@@ -153,7 +153,7 @@ public slots:
     * @brief
     * @return
     */
-    virtual void outStartGame(const quint16 &gameID) = 0;
+    virtual void outStartGame(const GameSettings &game) = 0;
 
     /**
     * @brief

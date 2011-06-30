@@ -122,7 +122,7 @@ public slots:
     * @brief
     * @return
     */
-    void outStartGame(const quint16 &gameID);
+    void outStartGame(const GameSettings &game);
     /**
     * @brief
     * @return

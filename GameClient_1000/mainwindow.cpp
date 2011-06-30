@@ -40,7 +40,10 @@ void MainWindow::setupWidgets()
 
 void MainWindow::sendStartGameQuary()
 {
-
+    GameSettings game;
+    //game.playersNumber=
+    //game.timeout=
+    parser->outStartGame(game);
 }
 
 
@@ -67,6 +70,7 @@ void MainWindow::sendRegistrationDataToServer()
     info.nickName = ui->loginLineEdit->text();
     info.password = ui->passwordLineEdit->text();
     info.realName = "user";
+    parser->outRegistration(info);
 }
 
 void MainWindow::getListOfAllNewGamesOnServer(QList<GameThousand> gameslist)
