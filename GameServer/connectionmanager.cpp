@@ -20,7 +20,9 @@ SocketState ConnectionManager::socketState(QTcpSocket *socket) const {
 void ConnectionManager::setSocketState(QTcpSocket *socket, SocketState state) {
     for (int i = 0; i < userList.size(); i++)
         if (userList.at(i).socket == socket) {
-            userList[i]._mState = state;
+            UserDescription tmp = userList.at(i);
+            tmp._mState = state;
+            userList.replace(i, tmp);
             break;
         }
 }
@@ -42,7 +44,9 @@ QString ConnectionManager::userNick(QTcpSocket *socket) const {
 void ConnectionManager::setUserNick(QTcpSocket *socket, QString nickName) {
     for (int i = 0; i < userList.size(); i++)
         if (userList.at(i).socket == socket) {
-            userList[i].UserNick = nickName;
+            UserDescription tmp = userList.at(i);
+            tmp.UserNick = nickName;
+            userList.replace(i, tmp);
             break;
         }
 }
@@ -57,7 +61,9 @@ bool ConnectionManager::authorizationFlag(QTcpSocket *socket) const {
 void ConnectionManager::setAuthorizationFlag(QTcpSocket *socket, bool flag) {
     for (int i = 0; i < userList.size(); i++)
         if (userList.at(i).socket == socket) {
-            userList[i].isAuthorize = flag;
+            UserDescription tmp = userList.at(i);
+            tmp.isAuthorize = flag;
+            userList.replace(i, tmp);
             break;
         }
 }
@@ -77,14 +83,11 @@ void ConnectionManager::addConnection(QTcpSocket *socket) {
 void ConnectionManager::removeConnection(QTcpSocket *socket) {
     Q_ASSERT(socket);
     socket->close();
-//    qDebug()<<"1234";
     int position = -1;
     for (int i = 0; i < userList.size(); i++)
         if (userList.at(i).socket == socket) { position = i; break; }
-//    qDebug()<<position;
     Q_ASSERT(position != -1);
     userList.removeAt(position);
-//    qDebug()<<userList.isEmpty();
 }
 
 UserDescription ConnectionManager::getUserDescription(quint32 ID) {

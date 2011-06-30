@@ -11,6 +11,7 @@
 #include <QObject>
 #include <QList>
 #include <QTcpSocket>
+#include <QMutex>
 
 /**
 * @enum SocketState
@@ -162,6 +163,8 @@ public slots:
 private:
     //! Список пользователей, подключенных к серверу
     QList<UserDescription> userList;
+
+    QMutex mutex;
 };
 
 #endif // CONNECTIONMANAGER_H

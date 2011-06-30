@@ -40,7 +40,7 @@ ThousandGameServer::ThousandGameServer(QString name, int port, QObject *parent) 
     _mManager = new ConnectionManager();
     connect(this, SIGNAL(connectionAborted(QTcpSocket*)), _mManager, SLOT(removeConnection(QTcpSocket*)));
     requestHandler = new ThousandGameQueryHandler(this);
-    connect(this, SIGNAL(queryListChanged()), requestHandler, SLOT(start())/*, Qt::DirectConnection*/);
+    connect(this, SIGNAL(queryListChanged()), requestHandler, SLOT(start()), Qt::DirectConnection);
     connect(requestHandler, SIGNAL(sendingDataChanged(quint16,QByteArray,QByteArray)),
             this, SLOT(sendData(quint16,QByteArray,QByteArray)), Qt::BlockingQueuedConnection);
     packInit();//инициализируем колоду карт
