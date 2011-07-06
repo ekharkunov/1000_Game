@@ -89,7 +89,6 @@ void ThousandGameQueryHandler::run() {
                         emit(server->newServerMessage(tr("Registration successful!\n")));
                         messageArray.append(tr("Registration successful!\n"));
                     }
-
                 }
                 query.finish();
             }

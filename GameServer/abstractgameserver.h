@@ -104,9 +104,6 @@ public:
     virtual void setServerPort(quint16 port) = 0;
 
 signals:
-    //! Сигнал высылается, если в очередь запросов был добавлен новый запрос
-    void queryListChanged();
-
     //! Сигнал высылается при изменении состояния сервера
     void stateChanged();
 

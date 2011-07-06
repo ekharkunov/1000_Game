@@ -1,6 +1,8 @@
 #include "httpserver.h"
+#include "config.h"
 #include "connectionmanager.h"
 #include <QMessageBox>
+#include <QFile>
 
 HttpServer::HttpServer(int port, QObject *parent) :
         QTcpServer(parent),
@@ -40,18 +42,29 @@ void HttpServer::addNewConnection() {
     connect(newSocket, SIGNAL(disconnected()), newSocket, SLOT(deleteLater()));
     connect(newSocket, SIGNAL(readyRead()), this, SLOT(readClientInformation()));
     QByteArray arr, st;
+    QFile mainPage(Config::rootDirectory.absolutePath() + "/index.html");
+    bool isOpened = mainPage.open(QIODevice::ReadOnly);
     QString str = "HTTP/1.1 200 OK\r\n"
           "Server: myserver/0.0.1\r\n"
           "Content-Language: ru\r\n"
-          "Content-Type: text/html; charset=utf-8\r\n"
+          "Content-Type: text/html; charset=zutf-8\r\n"
           "Content-Length: %1\r\n"
           "Connection: keep-alive\r\n"
           "\r\n";
+    if (isOpened) st = mainPage.readAll();
+    else qDebug()<<"Cannot open file!";
+    str = str.arg(st.size());
+
+//    QDataStream writer(&arr, QIODevice::WriteOnly);
+//    writer<<str;
+    arr.append(str);
     newSocket->write(arr);
-    st = "<html>"
-         "<body>Server connected!</body>"
-         "</html>";
     newSocket->write(st);
+    QImage img(Config::rootDirectory.absolutePath() + "/images/bg1.jpg");
+    QByteArray imgByte;
+    QDataStream stream(&imgByte, QIODevice::WriteOnly);
+    stream<<img;
+    newSocket->write(imgByte);
 }
 
 void HttpServer::stopServer() {

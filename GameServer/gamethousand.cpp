@@ -1,5 +1,6 @@
 #include "gamethousand.h"
 #include <algorithm>
+#include <QFile>
 
 GameThousand::GameThousand(UserDescription creater, quint8 number, quint16 time, QObject *parent) :
     QThread(parent),
@@ -8,8 +9,10 @@ GameThousand::GameThousand(UserDescription creater, quint8 number, quint16 time,
     _mTimeout(time)
 {
     _mPlayerList.append(creater);
-
+    _mWidowCount = _mPlayerNumber > 2 ? 1 : 2;
+    _mWidowCardCount = _mPlayerNumber > 2 ? 3 : 2;
     winnerExist = false;
+
 }
 
 GameThousand::~GameThousand() {
@@ -48,7 +51,7 @@ void GameThousand::run() {
 
     }
     //создаем лог игры
-//    createLog();
+    //    createLog();
 }
 
 void GameThousand::shuffle() {
@@ -104,10 +107,10 @@ void GameThousand::calculatePoints() {
                 else sum = 0 - tempSum;
             }
         }
-            //производим обнуление очков
-            if (_mBarrelPlayer.count(currentPlayerID) && sum == -100)
-                playerScore.append(0);
-            else playerScore.append(prevScore + sum);
+        //производим обнуление очков
+        if (_mBarrelPlayer.count(currentPlayerID) && sum == -100)
+            playerScore.append(0);
+        else playerScore.append(prevScore + sum);
     }
 }
 

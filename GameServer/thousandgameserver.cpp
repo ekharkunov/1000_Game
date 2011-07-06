@@ -40,7 +40,6 @@ ThousandGameServer::ThousandGameServer(QString name, int port, QObject *parent) 
     _mManager = new ConnectionManager();
     connect(this, SIGNAL(connectionAborted(QTcpSocket*)), _mManager, SLOT(removeConnection(QTcpSocket*)));
     requestHandler = new ThousandGameQueryHandler(this);
-    connect(this, SIGNAL(queryListChanged()), requestHandler, SLOT(start()), Qt::DirectConnection);
     connect(requestHandler, SIGNAL(sendingDataChanged(quint16,QByteArray,QByteArray)),
             this, SLOT(sendData(quint16,QByteArray,QByteArray)), Qt::BlockingQueuedConnection);
     packInit();//инициализируем колоду карт
@@ -222,14 +221,14 @@ void ThousandGameServer::addRequestQuery() {
             QList<UserDescription> list = _mManager->getUserList();
             for (int i = 0; i < list.size(); i++) {
                 QTcpSocket *userSocket = list.at(i).socket;
-                _mManager->setSocketState(userSocket, WaitForQueryTransmission);
+                _mManager->setSocketState(userSocket, WaitForDataTransmission);
                 requestQuery.socketDescriptor = socket->socketDescriptor();
                 QByteArray outcomingRequest;
                 QDataStream outStream(&outcomingRequest, QIODevice::WriteOnly);
                 requestQuery.size = outcomingMessage.size();
                 outStream<<requestQuery;
                 userSocket->write(outcomingRequest);
-                _mManager->setSocketState(socket, WaitForDataTransmission);
+                _mManager->setSocketState(socket, WaitForQueryTransmission);
                 userSocket->write(outcomingMessage);
             }
             mutex.unlock();
@@ -239,8 +238,7 @@ void ThousandGameServer::addRequestQuery() {
             locker.lockForWrite();
             _mRequestQueries.append(requestQuery);
             locker.unlock();
-            emit (queryListChanged());//высылаем сигнал об изменении в очереди запросов
-
+            if (!requestHandler->isRunning()) requestHandler->start(QThread::HighPriority);
         }
         }
         if (requestQuery.size != -1 && requestQuery.type != MESSAGE) {
