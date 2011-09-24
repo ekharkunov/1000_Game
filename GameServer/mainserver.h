@@ -85,14 +85,30 @@ private:
     QTableView *view;
 
     //! Содержит информацию о работе серверов
-    QTextEdit *messanges;
+    QMap<QString, QTextEdit*> messages;
 
+    //! Область для вкладок с сообщения серверов
+    QTabWidget *tabArea;
+
+    //! Действие "запуск сервера"
     QAction *actionStartServer;
+
+    //! Действие "остановка сервера"
     QAction *actionStopServer;
+
+    //! Действие "перезапуск сервера"
     QAction *actionRestartServer;
+
+    //! Действие "запуск всех серверов"
     QAction *actionStartAllServers;
+
+    //! Действие "остановка всех серверов"
     QAction *actionStopAllServers;
+
+    //! Действие "перезапуск всех серверов"
     QAction *actionRestartAllServers;
+
+    //! Действие "смена прослушиваемого порта"
     QAction *actionChangePort;
 private slots:
     //! Слот запуска выбранного сервера
@@ -124,10 +140,10 @@ private slots:
 
     /**
     * @brief Слот для обработки выделения данных
-    * @param Выделенный диапозон
-    * @param Невыделенный диапозон
+    * @param selection   Выделенный диапозон
+    * @param deselection Невыделенный диапозон
     */
-    void slotSelectionChanged(QItemSelection, QItemSelection);
+    void slotSelectionChanged(QItemSelection selection, QItemSelection deselection);
 
 public slots:
     //! Слот для обновления данных о состояния сервера
@@ -136,10 +152,16 @@ public slots:
     /**
     * @brief Слот для добавления информационного сообщения о работе сервера
     *
-    * Сообщение содержит в себе дату события и имя сервера, которое выслало данное сообщение
+    * Сообщения добавляются в соответствующие серверам закладки
     * @param mes Информационное сообщение
     */
     void addServerMessage(QString mes);
+
+    /**
+    * @brief Отображает все приходимые от HTTP сервера сообщения
+    * @param mes Сообщение HTTP сервера
+    */
+    void addHttpServerLog(QString mes);
 
     /**
     * @brief Слот для обновления времени работы всех запущенных серверов

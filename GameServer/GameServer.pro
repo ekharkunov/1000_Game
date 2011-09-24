@@ -14,23 +14,35 @@ TEMPLATE = app
 TRANSLATIONS += translations/lang_en_EN.ts \
                 translations/lang_ru_RU.ts
 
+INCLUDEPATH += \
+               Game1000\
+               HTTPServer
+
+DEPENDPATH += \
+               Game1000\
+               HTTPServer
+
 RC_FILE = GameServer.rc
 
-SOURCES += main.cpp\
+SOURCES += \
+    main.cpp\
     mainserver.cpp \
     abstractgameserver.cpp \
     gameserverfactory.cpp \
-    httpserver.cpp \
     thousandgameserverfactory.cpp \
     connectionmanager.cpp \
     thousandgameserver.cpp \
-    gamethousand.cpp \
     abstractqueryhandler.cpp \
-    thousandgamequeryhandler.cpp \
     abstractdataparser.cpp \
-    thousandgamedataparser.cpp \
     config.cpp \
-    tablemodel.cpp
+    tablemodel.cpp \
+    Game1000/thousandgamedataparser.cpp \
+    Game1000/gamethousand.cpp \
+    Game1000/thousandgamequeryhandler.cpp \
+    HTTPServer/httpserver.cpp \
+    HTTPServer/httprequest.cpp \
+    HTTPServer/httpresponse.cpp \
+    HTTPServer/httpconnection.cpp
 
 HEADERS  += \
     mainserver.h \
@@ -38,18 +50,22 @@ HEADERS  += \
     config.h \
     description.h \
     gameserverfactory.h \
-    httpserver.h \
     thousandgameserverfactory.h \
     connectionmanager.h \
     thousandgameserver.h \
-    gamethousand.h \
     protocol.h \
     abstractqueryhandler.h \
-    thousandgamequeryhandler.h \
     abstractdataparser.h \
-    thousandgamedataparser.h \
     card.h \
-    tablemodel.h
+    tablemodel.h \
+    Game1000/thousandgamedataparser.h \
+    Game1000/gamethousand.h \
+    Game1000/thousandgamequeryhandler.h \
+    HTTPServer/httpserver.h \
+    HTTPServer/httprequest.h \
+    HTTPServer/httpresponse.h \
+    HTTPServer/httpconnection.h \
+    HTTPServer/httpdefs.h
 
 OTHER_FILES += \
     ProtocolDescription.txt

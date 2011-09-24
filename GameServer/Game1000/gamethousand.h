@@ -22,6 +22,11 @@ class QFile;
 class GameThousand : public QThread
 {
     Q_OBJECT
+//    struct dealQueue {
+//    quint16
+
+//    };
+
 public:
     /**
     * @brief Конструктор класса
@@ -147,8 +152,10 @@ private:
 
     //! Счет(ID игрока, его динамика счета)
     QMap< quint16, QVector<qint16> > score;
+
     //! Текущие очки каждого из игроков(ID игрока, очки)
     QMap< quint16, qint8 > currentPoints;
+
     //! Текущая колода(перемешенная)
     CardPack currentPack;
 

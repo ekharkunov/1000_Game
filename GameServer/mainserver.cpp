@@ -9,6 +9,7 @@
 #include "thousandgameserverfactory.h"
 #include "config.h"
 #include "tablemodel.h"
+#include <QMap>
 #include <QApplication>
 #include <QMenuBar>
 #include <QMenu>
@@ -25,6 +26,7 @@
 #include <QVBoxLayout>
 #include <QTranslator>
 
+//! Список поддерживаемых языков
 static QStringList langList = QStringList() << "English"
                                             << "Russian";
 
@@ -51,13 +53,14 @@ MainServer::MainServer(QWidget *parent) :
     createMenus();
 
     _mHttpServer = new HttpServer(Config::portForHttpServer);
-    _mHttpServer->startServer();
+    connect(_mHttpServer, SIGNAL(newMessage(QString)), this, SLOT(addHttpServerLog(QString)));
 
     timer = new QTimer(this);
 
     serversList = new QDockWidget(tr("List of registred servers"), this);
     serversList->setFeatures(QDockWidget::NoDockWidgetFeatures);
     serversMessages = new QDockWidget(tr("Servers messages"), this);
+    serversMessages->setFeatures(QDockWidget::NoDockWidgetFeatures);
 
     addDockWidget(Qt::LeftDockWidgetArea, serversList);
     addDockWidget(Qt::BottomDockWidgetArea, serversMessages);
@@ -68,18 +71,27 @@ MainServer::MainServer(QWidget *parent) :
     selectionModel = view->selectionModel();
     serversList->setWidget(view);
 
-    messanges = new QTextEdit(serversMessages);
-    messanges->setReadOnly(true);
-    serversMessages->setWidget(messanges);
+    tabArea = new QTabWidget();
+    serversMessages->setWidget(tabArea);
+    QTextEdit *http = new QTextEdit();
+    http->setReadOnly(true);
+    tabArea->addTab(http, "HTTP Server");
+    messages["HTTP Server"] = http;
 
     QList<AbstractGameServer*> list = GameServerFactory::registeredServer();
     for(int i = 0; i < list.size(); i++) {
         AbstractGameServer* server = list.at(i);
         connect(server, SIGNAL(newServerMessage(QString)), this, SLOT(addServerMessage(QString)));
         connect(server, SIGNAL(stateChanged()), this, SLOT(stateUpdate()));
+
+        QTextEdit *edit = new QTextEdit();
+        edit->setReadOnly(true);
+        tabArea->addTab(edit, server->serverName());
+        messages[server->serverName()] = edit;
     }
     connect(timer, SIGNAL(timeout()), this, SLOT(updateElapsedTime()));
     connect(selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(slotSelectionChanged(QItemSelection,QItemSelection)));
+    _mHttpServer->startServer();
 }
 
 MainServer::~MainServer() {
@@ -91,7 +103,6 @@ MainServer::~MainServer() {
     delete serversMessages;
     delete model;
     delete view;
-    delete messanges;
     delete selectionModel;
 
     delete fileMenu;
@@ -295,9 +306,14 @@ void MainServer::slotSetNewPort() {
 void MainServer::addServerMessage(QString mes) {
     QString str = QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss ");
     AbstractGameServer* server = static_cast<AbstractGameServer*> (sender());
-    str.append(server->serverName() + " ");
     str.append(mes + "\n");
-    messanges->append(str);
+    messages.value(server->serverName())->append(str);
+}
+
+void MainServer::addHttpServerLog(QString mes) {
+    QString str = QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss ");
+    str.append(mes + "\n");
+    messages.value("HTTP Server")->append(str);
 }
 
 void MainServer::updateElapsedTime() {

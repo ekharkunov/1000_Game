@@ -108,11 +108,10 @@ signals:
     void stateChanged();
 
     /**
-    * @brief Сигнал, который высылается при возникновении на сервере какой-либо ошибки
-    * @param serverName Имя сервера, на котором произошла ошибка
-    * @param errorStr   Сообщение об ошибке
+    * @brief Сигнал, который высылается для отображения сообщений сервера
+    * @param message   Сообщение
     */
-    void newServerMessage(QString str);
+    void newServerMessage(QString message);
 
 public slots:
     /**

@@ -9,12 +9,16 @@
 #define HTTPSERVER_H
 
 #include <QTcpServer>
+#include <QString>
 
 class ConnectionManager;
+class HttpRequest;
+class HttpResponse;
 
 /**
 * @class HttpServer
 * @brief Реализует модель простейшего Http сервера
+* @note Реализован с помощью паттерна "Синглетон"
 */
 class HttpServer : public QTcpServer
 {
@@ -26,12 +30,23 @@ class HttpServer : public QTcpServer
 enum states {Running, NotRunning};
 public:
     /**
+    * @brief Получает объект класса HTTP сервер
+    * @return Указатель на объект данного класса
+    */
+    static HttpServer* getInstance();
+
+    /**
+    * @brief Уничтожает объект данного класса
+    */
+    static void destroy();
+
+    /**
     * @brief Конструктор по умолчанию
     * @param port Номер порта, на который будет прослушиваться сервером
     * @param parent Указатель на родительский объект
     * @note После создания необходим вызов HttpServer::startServer() для запуска сервера
     */
-    explicit HttpServer(int port = 8080, QObject *parent = 0);
+    explicit HttpServer(int port = 80, QObject *parent = 0);
 
     //! Стандартный деструктор
     ~HttpServer();
@@ -56,7 +71,15 @@ public:
     */
     void stopServer();
 
+    /**
+    * @brief Функция, которая получает имя сервера
+    * @return Строка, содержащая имя сервера
+    */
+    QString serverName() const;
 private:
+    //! Объект данного класса
+    static HttpServer* _mInstance;
+
     //! Состояние сервера
     states currentState;
 
@@ -65,20 +88,29 @@ private:
 
     //! Номер порта, который прослушивается сервером
     int mPort;
+
+    //! Имя сервера
+    QString _mServerName;
 signals:
     /**
-    * @brief Сигнал, который высылается при
-    * разрыве соединения, которое обеспечивалось посредством @p QTcpSocket
-    * @note Высылается в слоте @sa HttpServer::slotConnectionAborted()
+    * @brief Сигнал, который высылается в случае возникновения нового сообщения у сервера
+    * @param mes Текстовое сообщение, содержащие время события и краткое его описание
     */
-    void connectionAborted(QTcpSocket*);
+    void newMessage(QString mes);
 private slots:
     /**
-    * @brief Слот, для разрыва установленного соединения
-    * @sa ConnectionManager::removeConnection()
+    * @brief Слот, предназначенный для передачи информации по заданному соединению
+    * @param data Информация, которую необходимо передать
     */
-    void slotConnectionAborted();
+    void writeData(QByteArray data);
 
+    /**
+    * @brief Слот для подтверждения окончания транзакции между клиентом и сервером
+    * @param req Запрос, полученный от клиента
+    * @param res Ответ, сформированный сервером
+    * @note На данном этапе слот содержит в себе лишь вывод данных в лог сервера
+    */
+    void finishTransaction(HttpRequest* req, HttpResponse* res);
 public slots:
     /**
     * @brief Слот для создание нового соединения при запросе подключения
@@ -86,7 +118,7 @@ public slots:
     void addNewConnection();
 
     /**
-    * @brief Сдот для обработки принятой от клиента информации
+    * @brief Слот для обработки принятой от клиента информации
     */
     void readClientInformation();
 };
