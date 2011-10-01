@@ -15,7 +15,7 @@ HttpRequest::HttpRequest(QString str, QObject *parent) :
     _mRequestStr(str)
 {
     QString method, url, full;
-    QRegExp rx("([A-Z]+)\\s(\\w*|/*|.*)\\s(\\w+)/(\\d.\\d)\\r\\n");
+    QRegExp rx("([A-Z]+)\\s(\\w*|/*|.*)\\s(\\w+)/(\\d.\\d)(\\r)*(\\n)+");
     if (rx.indexIn(str) != -1) {
         full = rx.cap(0);
     method = rx.cap(1);

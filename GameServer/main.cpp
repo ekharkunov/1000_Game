@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     Config::pathLogs.cd("logs");
     Config::pathTranslations = appDir;
     Config::pathTranslations.cd("translations");
-    Config::portForHttpServer = 9000;
+    Config::portForHttpServer = 80;
     Config::portsForGameServers = QMap<QString, int>();
 
     QTranslator trans;

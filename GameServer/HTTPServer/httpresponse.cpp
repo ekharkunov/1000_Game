@@ -90,13 +90,12 @@ void HttpResponse::prepareResponse(const HttpRequest &request, QByteArray &arr) 
             "Date: %3\r\n"
             "Server: %4\r\n"
             "%5"//дополнительные заголовки, в случае отсутствия ""
-            "Content-Type: %6\r\n"
-            "Content-Length: %7\r\n"
             "Connection: keep-alive\r\n"
             "\r\n";
     QString version, status, date, server, type, length, additionalHeaders;
-    version = "1.1";
-    date = QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss");
+    version = "1.0";
+    //! TODO: проверить локализацию(проблема с отображением месяца)
+    date = QDateTime::currentDateTime().toString("dd MMM yyyy hh:mm:ss 'GMT'");
     server = serverName;
     switch (request.method()) {
     case GET  : case HEAD : {
@@ -110,9 +109,17 @@ void HttpResponse::prepareResponse(const HttpRequest &request, QByteArray &arr) 
             additionalHeaders.append("Content-Language: ru\r\n");
             type.append("; charset=utf-8");
         }
+
         QString filePath = Config::rootDirectory.absolutePath() + request.path();
         arr = prepareData(filePath, found);
         length = QString::number(arr.size());
+
+        QString additionalStr = "Content-Type: %1\r\n"
+                                "Content-Length: %2\r\n";
+
+        additionalStr = additionalStr.arg(type)
+                                     .arg(length);
+        additionalHeaders.append(additionalStr);
 
         if (found) status = STATUS_CODE.value(200);
         else status = STATUS_CODE.value(404);
@@ -123,16 +130,17 @@ void HttpResponse::prepareResponse(const HttpRequest &request, QByteArray &arr) 
         break;
     }
     case UNDEFINED : {
-        status = STATUS_CODE.value(400);
+        status = STATUS_CODE.value(501);
+        additionalHeaders.append("Allow: GET, POST, HEAD\r\n");
     }
     }
+    //! TODO: 302 Found - Location:......
+    //! TODO: 400 Bad Request - Retry:.....
     _mResponseStr = _mResponseStr.arg(version)
             .arg(status)
             .arg(date)
             .arg(server)
-            .arg(additionalHeaders)
-            .arg(type)
-            .arg(length);
+            .arg(additionalHeaders);
 }
 
 QByteArray HttpResponse::prepareData(const QString filePath, bool &found) {

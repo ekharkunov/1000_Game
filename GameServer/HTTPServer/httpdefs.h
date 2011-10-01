@@ -37,6 +37,7 @@ static void initFormat() {
     format2MIME["rtx"] = "text/richtext";
     format2MIME["rtf"] = "text/rtf";
     //images
+    format2MIME["ico"] = "image/x-icon";
     format2MIME["png"] = "image/png";
     format2MIME["bmp"] = "image/bmp";
     format2MIME["gif"] = "image/gif";
