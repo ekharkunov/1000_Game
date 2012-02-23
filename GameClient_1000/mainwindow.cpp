@@ -5,7 +5,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->showFullScreen();
+
     client = new ThousandClient(1000,"127.0.0.1");
     parser=client->getDataParser();
     setupWidgets();
